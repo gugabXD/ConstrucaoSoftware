@@ -2,10 +2,8 @@ package services
 
 import (
 	"errors"
-
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
+	"sarc/infrastructure/repositories"
 )
 
 // RoomService interface for dependency injection and testing
@@ -18,54 +16,43 @@ type RoomService interface {
 }
 
 type roomService struct {
-	db *gorm.DB
+	repo repositories.RoomRepository
 }
 
-// NewRoomService creates a new RoomService using a database connection
-func NewRoomService(db *gorm.DB) RoomService {
-	return &roomService{db: db}
+// NewRoomService creates a new RoomService using a repository
+func NewRoomService(repo repositories.RoomRepository) RoomService {
+	return &roomService{repo: repo}
 }
 
 func (s *roomService) CreateRoom(room *domain.Room) (*domain.Room, error) {
-	if err := s.db.Create(room).Error; err != nil {
+	if err := s.repo.Create(room); err != nil {
 		return nil, err
 	}
 	return room, nil
 }
 
 func (s *roomService) GetRooms() ([]domain.Room, error) {
-	var rooms []domain.Room
-	if err := s.db.Find(&rooms).Error; err != nil {
-		return nil, err
-	}
-	return rooms, nil
+	return s.repo.FindAll()
 }
 
 func (s *roomService) GetRoomByID(id uint) (*domain.Room, error) {
-	var room domain.Room
-	if err := s.db.First(&room, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("room not found")
-		}
+	room, err := s.repo.FindByID(id)
+	if err != nil {
 		return nil, err
 	}
-	return &room, nil
+	if room == nil {
+		return nil, errors.New("room not found")
+	}
+	return room, nil
 }
 
 func (s *roomService) UpdateRoom(id uint, updated *domain.Room) (*domain.Room, error) {
-	var room domain.Room
-	if err := s.db.First(&room, id).Error; err != nil {
+	if err := s.repo.Update(id, updated); err != nil {
 		return nil, err
 	}
-	if err := s.db.Model(&room).Updates(updated).Error; err != nil {
-		return nil, err
-	}
-	return &room, nil
+	return s.repo.FindByID(id)
 }
 
 func (s *roomService) DeleteRoom(id uint) error {
-	if err := s.db.Delete(&domain.Room{}, id).Error; err != nil {
-		return err
-	}
-	return nil
+	return s.repo.Delete(id)
 }

@@ -2,13 +2,10 @@ package services
 
 import (
 	"errors"
-
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
+	"sarc/infrastructure/repositories"
 )
 
-// CurriculumService interface for dependency injection and testing
 type CurriculumService interface {
 	CreateCurriculum(curriculum *domain.Curriculum) (*domain.Curriculum, error)
 	GetCurriculums() ([]domain.Curriculum, error)
@@ -18,54 +15,42 @@ type CurriculumService interface {
 }
 
 type curriculumService struct {
-	db *gorm.DB
+	repo repositories.CurriculumRepository
 }
 
-// NewCurriculumService creates a new CurriculumService using a database connection
-func NewCurriculumService(db *gorm.DB) CurriculumService {
-	return &curriculumService{db: db}
+func NewCurriculumService(repo repositories.CurriculumRepository) CurriculumService {
+	return &curriculumService{repo: repo}
 }
 
 func (s *curriculumService) CreateCurriculum(curriculum *domain.Curriculum) (*domain.Curriculum, error) {
-	if err := s.db.Create(curriculum).Error; err != nil {
+	if err := s.repo.Create(curriculum); err != nil {
 		return nil, err
 	}
 	return curriculum, nil
 }
 
 func (s *curriculumService) GetCurriculums() ([]domain.Curriculum, error) {
-	var curriculums []domain.Curriculum
-	if err := s.db.Find(&curriculums).Error; err != nil {
-		return nil, err
-	}
-	return curriculums, nil
+	return s.repo.FindAll()
 }
 
 func (s *curriculumService) GetCurriculumByID(id uint) (*domain.Curriculum, error) {
-	var curriculum domain.Curriculum
-	if err := s.db.First(&curriculum, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("curriculum not found")
-		}
+	curriculum, err := s.repo.FindByID(id)
+	if err != nil {
 		return nil, err
 	}
-	return &curriculum, nil
+	if curriculum == nil {
+		return nil, errors.New("curriculum not found")
+	}
+	return curriculum, nil
 }
 
 func (s *curriculumService) UpdateCurriculum(id uint, updated *domain.Curriculum) (*domain.Curriculum, error) {
-	var curriculum domain.Curriculum
-	if err := s.db.First(&curriculum, id).Error; err != nil {
+	if err := s.repo.Update(id, updated); err != nil {
 		return nil, err
 	}
-	if err := s.db.Model(&curriculum).Updates(updated).Error; err != nil {
-		return nil, err
-	}
-	return &curriculum, nil
+	return s.repo.FindByID(id)
 }
 
 func (s *curriculumService) DeleteCurriculum(id uint) error {
-	if err := s.db.Delete(&domain.Curriculum{}, id).Error; err != nil {
-		return err
-	}
-	return nil
+	return s.repo.Delete(id)
 }

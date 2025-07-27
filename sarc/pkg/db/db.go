@@ -82,6 +82,7 @@ func Connect() {
 		Program:      "Basic Math Program",
 		Bibliography: []string{"Book 1", "Book 2"},
 	})
+	DB.First(&discipline, "name = ?", "Mathematics")
 
 	// Curriculum (with discipline)
 	var curriculum domain.Curriculum
@@ -91,6 +92,8 @@ func Connect() {
 		DataFim:     "2029-01-01",
 		Disciplines: []domain.Discipline{discipline}, // many2many
 	})
+	DB.First(&curriculum, "course_name = ?", "Engineering")
+	DB.Model(&curriculum).Association("Disciplines").Append(&discipline)
 
 	// Class (connected to discipline)
 	var class domain.Class
@@ -114,6 +117,7 @@ func Connect() {
 	DB.FirstOrCreate(&resourceType, domain.ResourceType{
 		Name: "Projector",
 	})
+	DB.First(&resourceType, "name = ?", "Projector")
 
 	// Resource (connected to ResourceType)
 	var resource domain.Resource
@@ -123,6 +127,7 @@ func Connect() {
 		Characteristics: []string{"HD", "HDMI"},
 		ResourceTypeID:  resourceType.ResourceTypeID,
 	})
+	DB.First(&resource, "description = ?", "Epson Projector")
 
 	// Reservation (connects lecture and resource)
 	var reservation domain.Reservation
@@ -131,5 +136,8 @@ func Connect() {
 		Observation: "First class reservation",
 		Resources:   []domain.Resource{resource}, // many2many
 	})
+	DB.First(&reservation, "lecture_id = ?", lecture.LectureID)
+	DB.Model(&reservation).Association("Resources").Append(&resource)
+
 	fmt.Println("Database connected and migrated!")
 }

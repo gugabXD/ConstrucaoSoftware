@@ -2,13 +2,10 @@ package services
 
 import (
 	"errors"
-
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
+	"sarc/infrastructure/repositories"
 )
 
-// ClassService interface for dependency injection and testing
 type ClassService interface {
 	CreateClass(class *domain.Class) (*domain.Class, error)
 	GetClasses() ([]domain.Class, error)
@@ -18,54 +15,42 @@ type ClassService interface {
 }
 
 type classService struct {
-	db *gorm.DB
+	repo repositories.ClassRepository
 }
 
-// NewClassService creates a new ClassService using a database connection
-func NewClassService(db *gorm.DB) ClassService {
-	return &classService{db: db}
+func NewClassService(repo repositories.ClassRepository) ClassService {
+	return &classService{repo: repo}
 }
 
 func (s *classService) CreateClass(class *domain.Class) (*domain.Class, error) {
-	if err := s.db.Create(class).Error; err != nil {
+	if err := s.repo.Create(class); err != nil {
 		return nil, err
 	}
 	return class, nil
 }
 
 func (s *classService) GetClasses() ([]domain.Class, error) {
-	var classes []domain.Class
-	if err := s.db.Find(&classes).Error; err != nil {
-		return nil, err
-	}
-	return classes, nil
+	return s.repo.FindAll()
 }
 
 func (s *classService) GetClassByID(id uint) (*domain.Class, error) {
-	var class domain.Class
-	if err := s.db.First(&class, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("class not found")
-		}
+	class, err := s.repo.FindByID(id)
+	if err != nil {
 		return nil, err
 	}
-	return &class, nil
+	if class == nil {
+		return nil, errors.New("class not found")
+	}
+	return class, nil
 }
 
-func (s *classService) UpdateClass(id uint, updated *domain.Class) (*domain.Class, error) {
-	var class domain.Class
-	if err := s.db.First(&class, id).Error; err != nil {
+func (s *classService) UpdateClass(id uint, class *domain.Class) (*domain.Class, error) {
+	if err := s.repo.Update(id, class); err != nil {
 		return nil, err
 	}
-	if err := s.db.Model(&class).Updates(updated).Error; err != nil {
-		return nil, err
-	}
-	return &class, nil
+	return s.repo.FindByID(id)
 }
 
 func (s *classService) DeleteClass(id uint) error {
-	if err := s.db.Delete(&domain.Class{}, id).Error; err != nil {
-		return err
-	}
-	return nil
+	return s.repo.Delete(id)
 }

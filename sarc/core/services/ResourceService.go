@@ -2,13 +2,10 @@ package services
 
 import (
 	"errors"
-
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
+	"sarc/infrastructure/repositories"
 )
 
-// ResourceService interface for dependency injection and testing
 type ResourceService interface {
 	CreateResource(resource *domain.Resource) (*domain.Resource, error)
 	GetResources() ([]domain.Resource, error)
@@ -18,54 +15,42 @@ type ResourceService interface {
 }
 
 type resourceService struct {
-	db *gorm.DB
+	repo repositories.ResourceRepository
 }
 
-// NewResourceService creates a new ResourceService using a database connection
-func NewResourceService(db *gorm.DB) ResourceService {
-	return &resourceService{db: db}
+func NewResourceService(repo repositories.ResourceRepository) ResourceService {
+	return &resourceService{repo: repo}
 }
 
 func (s *resourceService) CreateResource(resource *domain.Resource) (*domain.Resource, error) {
-	if err := s.db.Create(resource).Error; err != nil {
+	if err := s.repo.Create(resource); err != nil {
 		return nil, err
 	}
 	return resource, nil
 }
 
 func (s *resourceService) GetResources() ([]domain.Resource, error) {
-	var resources []domain.Resource
-	if err := s.db.Find(&resources).Error; err != nil {
-		return nil, err
-	}
-	return resources, nil
+	return s.repo.FindAll()
 }
 
 func (s *resourceService) GetResourceByID(id uint) (*domain.Resource, error) {
-	var resource domain.Resource
-	if err := s.db.First(&resource, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("resource not found")
-		}
+	resource, err := s.repo.FindByID(id)
+	if err != nil {
 		return nil, err
 	}
-	return &resource, nil
+	if resource == nil {
+		return nil, errors.New("resource not found")
+	}
+	return resource, nil
 }
 
 func (s *resourceService) UpdateResource(id uint, updated *domain.Resource) (*domain.Resource, error) {
-	var resource domain.Resource
-	if err := s.db.First(&resource, id).Error; err != nil {
+	if err := s.repo.Update(id, updated); err != nil {
 		return nil, err
 	}
-	if err := s.db.Model(&resource).Updates(updated).Error; err != nil {
-		return nil, err
-	}
-	return &resource, nil
+	return s.repo.FindByID(id)
 }
 
 func (s *resourceService) DeleteResource(id uint) error {
-	if err := s.db.Delete(&domain.Resource{}, id).Error; err != nil {
-		return err
-	}
-	return nil
+	return s.repo.Delete(id)
 }
