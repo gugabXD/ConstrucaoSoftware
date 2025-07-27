@@ -21,6 +21,38 @@ func (r *curriculumRepositoryImpl) Create(curriculum *domain.Curriculum) error {
 	return err
 }
 
+func (r *curriculumRepositoryImpl) FindByID(id uint) (*domain.Curriculum, error) {
+	row := r.db.QueryRow("SELECT curriculum_id, course_name, data_inicio, data_fim FROM curriculums WHERE curriculum_id = $1", id)
+	var c domain.Curriculum
+	if err := row.Scan(&c.ID, &c.CourseName, &c.DataInicio, &c.DataFim); err != nil {
+		return nil, err
+	}
+
+	// Fetch disciplines for this curriculum
+	discRows, err := r.db.Query(`
+        SELECT d.discipline_id, d.name, d.credits, d.program, d.bibliography
+        FROM disciplines d
+        JOIN curriculum_disciplines cd ON cd.discipline_id = d.discipline_id
+        WHERE cd.curriculum_id = $1
+    `, id)
+	if err != nil {
+		return nil, err
+	}
+	defer discRows.Close()
+
+	var disciplines []domain.Discipline
+	for discRows.Next() {
+		var d domain.Discipline
+		if err := discRows.Scan(&d.ID, &d.Name, &d.Credits, &d.Program, &d.Bibliography); err != nil {
+			return nil, err
+		}
+		disciplines = append(disciplines, d)
+	}
+	c.Disciplines = disciplines
+
+	return &c, nil
+}
+
 func (r *curriculumRepositoryImpl) FindAll() ([]domain.Curriculum, error) {
 	rows, err := r.db.Query("SELECT curriculum_id, course_name, data_inicio, data_fim FROM curriculums")
 	if err != nil {
@@ -34,18 +66,32 @@ func (r *curriculumRepositoryImpl) FindAll() ([]domain.Curriculum, error) {
 		if err := rows.Scan(&c.ID, &c.CourseName, &c.DataInicio, &c.DataFim); err != nil {
 			return nil, err
 		}
+
+		// Fetch disciplines for each curriculum
+		discRows, err := r.db.Query(`
+            SELECT d.discipline_id, d.name, d.credits, d.program, d.bibliography
+            FROM disciplines d
+            JOIN curriculum_disciplines cd ON cd.discipline_id = d.discipline_id
+            WHERE cd.curriculum_id = $1
+        `, c.ID)
+		if err != nil {
+			return nil, err
+		}
+		var disciplines []domain.Discipline
+		for discRows.Next() {
+			var d domain.Discipline
+			if err := discRows.Scan(&d.ID, &d.Name, &d.Credits, &d.Program, &d.Bibliography); err != nil {
+				discRows.Close()
+				return nil, err
+			}
+			disciplines = append(disciplines, d)
+		}
+		discRows.Close()
+		c.Disciplines = disciplines
+
 		curriculums = append(curriculums, c)
 	}
 	return curriculums, nil
-}
-
-func (r *curriculumRepositoryImpl) FindByID(id uint) (*domain.Curriculum, error) {
-	row := r.db.QueryRow("SELECT curriculum_id, course_name, data_inicio, data_fim FROM curriculums WHERE id = $1", id)
-	var c domain.Curriculum
-	if err := row.Scan(&c.ID, &c.CourseName, &c.DataInicio, &c.DataFim); err != nil {
-		return nil, err
-	}
-	return &c, nil
 }
 
 func (r *curriculumRepositoryImpl) Update(id uint, curriculum *domain.Curriculum) error {
