@@ -84,6 +84,7 @@ func main() {
 	r.GET("/curriculums/:id", curriculumHandler.GetCurriculumByID)
 	r.PUT("/curriculums/:id", curriculumHandler.UpdateCurriculum)
 	r.DELETE("/curriculums/:id", curriculumHandler.DeleteCurriculum)
+	r.POST("/curriculums/:id/disciplines", curriculumHandler.AddDisciplineToCurriculum)
 
 	// Discipline routes
 	r.POST("/disciplines", disciplineHandler.CreateDiscipline)
@@ -126,6 +127,7 @@ func main() {
 	r.GET("/reservations/:id", reservationsHandler.GetReservationByID)
 	r.PUT("/reservations/:id", reservationsHandler.UpdateReservation)
 	r.DELETE("/reservations/:id", reservationsHandler.DeleteReservation)
+	r.POST("/reservations/:id/resources", reservationsHandler.AddResourceToReservation)
 
 	// Start server
 	r.Run(":8080")

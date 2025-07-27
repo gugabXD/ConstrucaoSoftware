@@ -8,4 +8,5 @@ type CurriculumRepository interface {
 	FindByID(id uint) (*domain.Curriculum, error)
 	Update(id uint, curriculum *domain.Curriculum) error
 	Delete(id uint) error
+	AddDisciplineToCurriculum(curriculumID uint, disciplineID uint) error
 }

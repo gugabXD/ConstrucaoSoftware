@@ -12,6 +12,7 @@ type ReservationsService interface {
 	GetReservationByID(id uint) (*domain.Reservation, error)
 	UpdateReservation(id uint, reservation *domain.Reservation) (*domain.Reservation, error)
 	DeleteReservation(id uint) error
+	AddResourceToReservation(reservationID uint, resourceID uint) error
 }
 
 type reservationsService struct {
@@ -23,8 +24,15 @@ func NewReservationsService(repo repositories.ReservationRepository) Reservation
 }
 
 func (s *reservationsService) CreateReservation(reservation *domain.Reservation) (*domain.Reservation, error) {
+	// 1. Create the reservation itself
 	if err := s.repo.Create(reservation); err != nil {
 		return nil, err
+	}
+	// 2. Add resources to reservation_resources (many-to-many)
+	for _, resource := range reservation.Resources {
+		if err := s.repo.AddResourceToReservation(reservation.ReservationID, resource.ResourceID); err != nil {
+			return nil, err
+		}
 	}
 	return reservation, nil
 }
@@ -53,4 +61,8 @@ func (s *reservationsService) UpdateReservation(id uint, updated *domain.Reserva
 
 func (s *reservationsService) DeleteReservation(id uint) error {
 	return s.repo.Delete(id)
+}
+
+func (s *reservationsService) AddResourceToReservation(reservationID uint, resourceID uint) error {
+	return s.repo.AddResourceToReservation(reservationID, resourceID)
 }

@@ -136,3 +136,36 @@ func (h *ReservationsHandler) DeleteReservation(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
+
+// Add Resource to Reservation
+// @Summary      Add a resource to a reservation
+// @Description  Associates a resource with a reservation (many-to-many relation)
+// @Tags         reservations
+// @Accept       json
+// @Produce      json
+// @Param        id         path      int  true  "Reservation ID"
+// @Param        resource   body      object  true  "Resource ID to add"  Schema({"resourceId":1})
+// @Success      204  {string}  string "No Content"
+// @Failure      400  {object}  domain.ErrorResponse "Invalid reservation ID or bad request"
+// @Failure      500  {object}  domain.ErrorResponse "Internal server error"
+// @Router       /reservations/{id}/resources [post]
+func (h *ReservationsHandler) AddResourceToReservation(c *gin.Context) {
+	reservationID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Invalid reservation ID"})
+		return
+	}
+	var req struct {
+		ResourceID uint `json:"resourceId"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.Service.AddResourceToReservation(uint(reservationID), req.ResourceID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(204)
+}

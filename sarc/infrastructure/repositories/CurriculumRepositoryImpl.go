@@ -60,3 +60,11 @@ func (r *curriculumRepositoryImpl) Delete(id uint) error {
 	_, err := r.db.Exec("DELETE FROM curriculums WHERE id = $1", id)
 	return err
 }
+
+func (r *curriculumRepositoryImpl) AddDisciplineToCurriculum(curriculumID uint, disciplineID uint) error {
+	_, err := r.db.Exec(
+		"INSERT INTO curriculum_disciplines (curriculum_id, discipline_id) VALUES ($1, $2)",
+		curriculumID, disciplineID,
+	)
+	return err
+}

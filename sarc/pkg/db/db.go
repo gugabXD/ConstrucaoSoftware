@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"sarc/infrastructure/repositories"
+
 	_ "github.com/lib/pq"
 )
 
@@ -187,14 +189,14 @@ func Connect() {
 		log.Fatal("Failed to seed curriculum:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO curriculum_disciplines (curriculum_id, discipline_id)
-        VALUES (1, 1)
-        ON CONFLICT DO NOTHING
-    `)
-	if err != nil {
-		log.Fatal("Failed to seed curriculum_disciplines:", err)
-	}
+	/*_, err = DB.Exec(`
+	        INSERT INTO curriculum_disciplines (curriculum_id, discipline_id)
+	        VALUES (1, 1)
+	        ON CONFLICT DO NOTHING
+	    `)
+		if err != nil {
+			log.Fatal("Failed to seed curriculum_disciplines:", err)
+		}*/
 
 	_, err = DB.Exec(`
         INSERT INTO classes (name, description, discipline_id)
@@ -241,14 +243,27 @@ func Connect() {
 		log.Fatal("Failed to seed reservation:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO reservation_resources (reservation_id, resource_id)
-        VALUES (1, 1)
-        ON CONFLICT DO NOTHING
-    `)
-	if err != nil {
-		log.Fatal("Failed to seed reservation_resources:", err)
+	/*_, err = DB.Exec(`
+	        INSERT INTO reservation_resources (reservation_id, resource_id)
+	        VALUES (1, 1)
+	        ON CONFLICT DO NOTHING
+	    `)
+		if err != nil {
+			log.Fatal("Failed to seed reservation_resources:", err)
+		}*/
+
+	// Use repository methods to connect discipline to curriculum and resource to reservation
+	curriculumRepo := repositories.NewCurriculumRepository(DB)
+	reservationRepo := repositories.NewReservationRepository(DB)
+
+	// Add discipline (id=1) to curriculum (id=1)
+	if err := curriculumRepo.AddDisciplineToCurriculum(1, 1); err != nil {
+		log.Fatal("Failed to connect discipline to curriculum:", err)
 	}
 
+	// Add resource (id=1) to reservation (id=1)
+	if err := reservationRepo.AddResourceToReservation(1, 1); err != nil {
+		log.Fatal("Failed to connect resource to reservation:", err)
+	}
 	fmt.Println("Database connected and migrated!")
 }

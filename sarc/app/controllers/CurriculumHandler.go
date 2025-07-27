@@ -136,3 +136,36 @@ func (h *CurriculumHandler) DeleteCurriculum(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
+
+// Add Discipline to Curriculum
+// @Summary      Add a discipline to a curriculum
+// @Description  Associates a discipline with a curriculum (many-to-many relation)
+// @Tags         curriculums
+// @Accept       json
+// @Produce      json
+// @Param        id           path      int     true  "Curriculum ID"
+// @Param        discipline   body      object  true  "Discipline ID to add"  Schema({"disciplineId":1})
+// @Success      204  {string}  string "No Content"
+// @Failure      400  {object}  domain.ErrorResponse "Invalid curriculum ID or bad request"
+// @Failure      500  {object}  domain.ErrorResponse "Internal server error"
+// @Router       /curriculums/{id}/disciplines [post]
+func (h *CurriculumHandler) AddDisciplineToCurriculum(c *gin.Context) {
+	curriculumID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Invalid curriculum ID"})
+		return
+	}
+	var req struct {
+		DisciplineID uint `json:"disciplineId"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.Service.AddDisciplineToCurriculum(uint(curriculumID), req.DisciplineID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(204)
+}

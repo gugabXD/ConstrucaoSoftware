@@ -60,3 +60,11 @@ func (r *reservationRepositoryImpl) Delete(id uint) error {
 	_, err := r.db.Exec("DELETE FROM reservations WHERE reservation_id = $1", id)
 	return err
 }
+
+func (r *reservationRepositoryImpl) AddResourceToReservation(reservationID uint, resourceID uint) error {
+	_, err := r.db.Exec(
+		"INSERT INTO reservation_resources (reservation_id, resource_id) VALUES ($1, $2)",
+		reservationID, resourceID,
+	)
+	return err
+}

@@ -8,4 +8,5 @@ type ReservationRepository interface {
 	FindByID(id uint) (*domain.Reservation, error)
 	Update(id uint, reservation *domain.Reservation) error
 	Delete(id uint) error
+	AddResourceToReservation(reservationID uint, resourceID uint) error
 }
