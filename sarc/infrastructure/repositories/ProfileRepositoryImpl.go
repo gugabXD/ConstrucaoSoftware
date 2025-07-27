@@ -1,39 +1,62 @@
 package repositories
 
 import (
+	"database/sql"
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
 )
 
 type profileRepositoryImpl struct {
-	db *gorm.DB
+	db *sql.DB
 }
 
-func NewProfileRepository(db *gorm.DB) ProfileRepository {
+func NewProfileRepository(db *sql.DB) ProfileRepository {
 	return &profileRepositoryImpl{db}
 }
 
 func (r *profileRepositoryImpl) Create(profile *domain.Profile) error {
-	return r.db.Create(profile).Error
+	_, err := r.db.Exec(
+		"INSERT INTO profiles (role) VALUES ($1)",
+		profile.Role,
+	)
+	return err
 }
 
 func (r *profileRepositoryImpl) FindAll() ([]domain.Profile, error) {
+	rows, err := r.db.Query("SELECT profile_id, role FROM profiles")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	var profiles []domain.Profile
-	err := r.db.Find(&profiles).Error
-	return profiles, err
+	for rows.Next() {
+		var p domain.Profile
+		if err := rows.Scan(&p.ID, &p.Role); err != nil {
+			return nil, err
+		}
+		profiles = append(profiles, p)
+	}
+	return profiles, nil
 }
 
 func (r *profileRepositoryImpl) FindByID(id uint) (*domain.Profile, error) {
-	var profile domain.Profile
-	err := r.db.First(&profile, id).Error
-	return &profile, err
+	row := r.db.QueryRow("SELECT profile_id, role FROM profiles WHERE id = $1", id)
+	var p domain.Profile
+	if err := row.Scan(&p.ID, &p.Role); err != nil {
+		return nil, err
+	}
+	return &p, nil
 }
 
 func (r *profileRepositoryImpl) Update(id uint, profile *domain.Profile) error {
-	return r.db.Model(&domain.Profile{}).Where("id = ?", id).Updates(profile).Error
+	_, err := r.db.Exec(
+		"UPDATE profiles SET role = $1 WHERE id = $2",
+		profile.Role, id,
+	)
+	return err
 }
 
 func (r *profileRepositoryImpl) Delete(id uint) error {
-	return r.db.Delete(&domain.Profile{}, id).Error
+	_, err := r.db.Exec("DELETE FROM profiles WHERE id = $1", id)
+	return err
 }

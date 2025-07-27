@@ -1,39 +1,62 @@
 package repositories
 
 import (
+	"database/sql"
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
 )
 
 type classRepositoryImpl struct {
-	db *gorm.DB
+	db *sql.DB
 }
 
-func NewClassRepository(db *gorm.DB) ClassRepository {
+func NewClassRepository(db *sql.DB) ClassRepository {
 	return &classRepositoryImpl{db}
 }
 
 func (r *classRepositoryImpl) Create(class *domain.Class) error {
-	return r.db.Create(class).Error
+	_, err := r.db.Exec(
+		"INSERT INTO classes (name, description, discipline_id) VALUES ($1, $2, $3)",
+		class.Name, class.Description, class.DisciplineID,
+	)
+	return err
 }
 
 func (r *classRepositoryImpl) FindAll() ([]domain.Class, error) {
+	rows, err := r.db.Query("SELECT class_id, name, description, discipline_id FROM classes")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	var classes []domain.Class
-	err := r.db.Find(&classes).Error
-	return classes, err
+	for rows.Next() {
+		var c domain.Class
+		if err := rows.Scan(&c.ID, &c.Name, &c.Description, &c.DisciplineID); err != nil {
+			return nil, err
+		}
+		classes = append(classes, c)
+	}
+	return classes, nil
 }
 
 func (r *classRepositoryImpl) FindByID(id uint) (*domain.Class, error) {
-	var class domain.Class
-	err := r.db.First(&class, id).Error
-	return &class, err
+	row := r.db.QueryRow("SELECT class_id, name, description, discipline_id FROM classes WHERE id = $1", id)
+	var c domain.Class
+	if err := row.Scan(&c.ID, &c.Name, &c.Description, &c.DisciplineID); err != nil {
+		return nil, err
+	}
+	return &c, nil
 }
 
 func (r *classRepositoryImpl) Update(id uint, class *domain.Class) error {
-	return r.db.Model(&domain.Class{}).Where("id = ?", id).Updates(class).Error
+	_, err := r.db.Exec(
+		"UPDATE classes SET name = $1, description = $2, discipline_id = $3 WHERE id = $4",
+		class.Name, class.Description, class.DisciplineID, id,
+	)
+	return err
 }
 
 func (r *classRepositoryImpl) Delete(id uint) error {
-	return r.db.Delete(&domain.Class{}, id).Error
+	_, err := r.db.Exec("DELETE FROM classes WHERE id = $1", id)
+	return err
 }

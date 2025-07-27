@@ -1,39 +1,62 @@
 package repositories
 
 import (
+	"database/sql"
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
 )
 
 type curriculumRepositoryImpl struct {
-	db *gorm.DB
+	db *sql.DB
 }
 
-func NewCurriculumRepository(db *gorm.DB) CurriculumRepository {
+func NewCurriculumRepository(db *sql.DB) CurriculumRepository {
 	return &curriculumRepositoryImpl{db}
 }
 
 func (r *curriculumRepositoryImpl) Create(curriculum *domain.Curriculum) error {
-	return r.db.Create(curriculum).Error
+	_, err := r.db.Exec(
+		"INSERT INTO curriculums (course_name, data_inicio, data_fim) VALUES ($1, $2, $3)",
+		curriculum.CourseName, curriculum.DataInicio, curriculum.DataFim,
+	)
+	return err
 }
 
 func (r *curriculumRepositoryImpl) FindAll() ([]domain.Curriculum, error) {
+	rows, err := r.db.Query("SELECT curriculum_id, course_name, data_inicio, data_fim FROM curriculums")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	var curriculums []domain.Curriculum
-	err := r.db.Find(&curriculums).Error
-	return curriculums, err
+	for rows.Next() {
+		var c domain.Curriculum
+		if err := rows.Scan(&c.ID, &c.CourseName, &c.DataInicio, &c.DataFim); err != nil {
+			return nil, err
+		}
+		curriculums = append(curriculums, c)
+	}
+	return curriculums, nil
 }
 
 func (r *curriculumRepositoryImpl) FindByID(id uint) (*domain.Curriculum, error) {
-	var curriculum domain.Curriculum
-	err := r.db.First(&curriculum, id).Error
-	return &curriculum, err
+	row := r.db.QueryRow("SELECT curriculum_id, course_name, data_inicio, data_fim FROM curriculums WHERE id = $1", id)
+	var c domain.Curriculum
+	if err := row.Scan(&c.ID, &c.CourseName, &c.DataInicio, &c.DataFim); err != nil {
+		return nil, err
+	}
+	return &c, nil
 }
 
 func (r *curriculumRepositoryImpl) Update(id uint, curriculum *domain.Curriculum) error {
-	return r.db.Model(&domain.Curriculum{}).Where("id = ?", id).Updates(curriculum).Error
+	_, err := r.db.Exec(
+		"UPDATE curriculums SET course_name = $1, data_inicio = $2, data_fim = $3 WHERE id = $4",
+		curriculum.CourseName, curriculum.DataInicio, curriculum.DataFim, id,
+	)
+	return err
 }
 
 func (r *curriculumRepositoryImpl) Delete(id uint) error {
-	return r.db.Delete(&domain.Curriculum{}, id).Error
+	_, err := r.db.Exec("DELETE FROM curriculums WHERE id = $1", id)
+	return err
 }
