@@ -14,6 +14,7 @@ type Resource struct {
 	// For Swagger, treat as []string.
 	Characteristics pq.StringArray `gorm:"type:text[]" json:"characteristics" swaggertype:"array,string"`
 	ResourceTypeID  uint           `json:"resourceTypeId"`
+	ResourceType    *ResourceType  `json:"resourceType,omitempty"`
 }
 
 // ResourceType represents the type of a resource.

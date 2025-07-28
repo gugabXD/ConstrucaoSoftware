@@ -4,6 +4,7 @@ import (
 	"sarc/app/controllers"
 	"sarc/core/services"
 	_ "sarc/docs" // Importa os docs gerados
+	"sarc/infrastructure/repositories"
 	"sarc/pkg/db"
 
 	"github.com/gin-gonic/gin"
@@ -15,17 +16,29 @@ func main() {
 	// Connect to the database
 	db.Connect()
 
-	// Initialize services
-	buildingService := services.NewBuildingService(db.DB)
-	roomService := services.NewRoomService(db.DB)
-	classService := services.NewClassService(db.DB)
-	curriculumService := services.NewCurriculumService(db.DB)
-	disciplineService := services.NewDisciplineService(db.DB)
-	lectureService := services.NewLectureService(db.DB)
-	profileService := services.NewProfileService(db.DB)
-	resourceService := services.NewResourceService(db.DB)
-	userService := services.NewUserService(db.DB)
-	reservationsService := services.NewReservationsService(db.DB)
+	// Initialize repositories
+	buildingRepo := repositories.NewBuildingRepository(db.DB)
+	roomRepo := repositories.NewRoomRepository(db.DB)
+	classRepo := repositories.NewClassRepository(db.DB)
+	curriculumRepo := repositories.NewCurriculumRepository(db.DB)
+	disciplineRepo := repositories.NewDisciplineRepository(db.DB)
+	lectureRepo := repositories.NewLectureRepository(db.DB)
+	profileRepo := repositories.NewProfileRepository(db.DB)
+	resourceRepo := repositories.NewResourceRepository(db.DB)
+	userRepo := repositories.NewUserRepository(db.DB)
+	reservationsRepo := repositories.NewReservationRepository(db.DB)
+
+	// Initialize services with repositories
+	buildingService := services.NewBuildingService(buildingRepo)
+	roomService := services.NewRoomService(roomRepo)
+	classService := services.NewClassService(classRepo)
+	curriculumService := services.NewCurriculumService(curriculumRepo)
+	disciplineService := services.NewDisciplineService(disciplineRepo)
+	lectureService := services.NewLectureService(lectureRepo)
+	profileService := services.NewProfileService(profileRepo)
+	resourceService := services.NewResourceService(resourceRepo)
+	userService := services.NewUserService(userRepo)
+	reservationsService := services.NewReservationsService(reservationsRepo)
 
 	// Initialize handlers
 	buildingHandler := controllers.NewBuildingHandler(buildingService)
@@ -71,6 +84,7 @@ func main() {
 	r.GET("/curriculums/:id", curriculumHandler.GetCurriculumByID)
 	r.PUT("/curriculums/:id", curriculumHandler.UpdateCurriculum)
 	r.DELETE("/curriculums/:id", curriculumHandler.DeleteCurriculum)
+	r.POST("/curriculums/:id/disciplines", curriculumHandler.AddDisciplineToCurriculum)
 
 	// Discipline routes
 	r.POST("/disciplines", disciplineHandler.CreateDiscipline)
@@ -113,6 +127,7 @@ func main() {
 	r.GET("/reservations/:id", reservationsHandler.GetReservationByID)
 	r.PUT("/reservations/:id", reservationsHandler.UpdateReservation)
 	r.DELETE("/reservations/:id", reservationsHandler.DeleteReservation)
+	r.POST("/reservations/:id/resources", reservationsHandler.AddResourceToReservation)
 
 	// Start server
 	r.Run(":8080")

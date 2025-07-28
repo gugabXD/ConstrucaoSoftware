@@ -2,70 +2,67 @@ package services
 
 import (
 	"errors"
-
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
+	"sarc/infrastructure/repositories"
 )
 
-// ReservationsService interface for dependency injection and testing
 type ReservationsService interface {
 	CreateReservation(reservation *domain.Reservation) (*domain.Reservation, error)
 	GetReservations() ([]domain.Reservation, error)
 	GetReservationByID(id uint) (*domain.Reservation, error)
 	UpdateReservation(id uint, reservation *domain.Reservation) (*domain.Reservation, error)
 	DeleteReservation(id uint) error
+	AddResourceToReservation(reservationID uint, resourceID uint) error
 }
 
 type reservationsService struct {
-	db *gorm.DB
+	repo repositories.ReservationRepository
 }
 
-// NewReservationsService creates a new ReservationsService using a database connection
-func NewReservationsService(db *gorm.DB) ReservationsService {
-	return &reservationsService{db: db}
+func NewReservationsService(repo repositories.ReservationRepository) ReservationsService {
+	return &reservationsService{repo: repo}
 }
 
 func (s *reservationsService) CreateReservation(reservation *domain.Reservation) (*domain.Reservation, error) {
-	if err := s.db.Create(reservation).Error; err != nil {
+	// 1. Create the reservation itself
+	if err := s.repo.Create(reservation); err != nil {
 		return nil, err
+	}
+	// 2. Add resources to reservation_resources (many-to-many)
+	for _, resource := range reservation.Resources {
+		if err := s.repo.AddResourceToReservation(reservation.ReservationID, resource.ResourceID); err != nil {
+			return nil, err
+		}
 	}
 	return reservation, nil
 }
 
 func (s *reservationsService) GetReservations() ([]domain.Reservation, error) {
-	var reservations []domain.Reservation
-	if err := s.db.Find(&reservations).Error; err != nil {
-		return nil, err
-	}
-	return reservations, nil
+	return s.repo.FindAll()
 }
 
 func (s *reservationsService) GetReservationByID(id uint) (*domain.Reservation, error) {
-	var reservation domain.Reservation
-	if err := s.db.First(&reservation, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("reservation not found")
-		}
+	reservation, err := s.repo.FindByID(id)
+	if err != nil {
 		return nil, err
 	}
-	return &reservation, nil
+	if reservation == nil {
+		return nil, errors.New("reservation not found")
+	}
+	return reservation, nil
 }
 
 func (s *reservationsService) UpdateReservation(id uint, updated *domain.Reservation) (*domain.Reservation, error) {
-	var reservation domain.Reservation
-	if err := s.db.First(&reservation, id).Error; err != nil {
+	if err := s.repo.Update(id, updated); err != nil {
 		return nil, err
 	}
-	if err := s.db.Model(&reservation).Updates(updated).Error; err != nil {
-		return nil, err
-	}
-	return &reservation, nil
+	return s.repo.FindByID(id)
 }
 
 func (s *reservationsService) DeleteReservation(id uint) error {
-	if err := s.db.Delete(&domain.Reservation{}, id).Error; err != nil {
-		return err
-	}
-	return nil
+	return s.repo.Delete(id)
+}
+
+func (s *reservationsService) AddResourceToReservation(reservationID uint, resourceID uint) error {
+	return s.repo.AddResourceToReservation(reservationID, resourceID)
 }

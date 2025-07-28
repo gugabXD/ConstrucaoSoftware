@@ -553,6 +553,41 @@ paths:
       summary: Update an existing curriculum
       tags:
       - curriculums
+  /curriculums/{id}/disciplines:
+    post:
+      consumes:
+      - application/json
+      description: Associates a discipline with a curriculum (many-to-many relation)
+      parameters:
+      - description: Curriculum ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Discipline ID to add
+        in: body
+        name: discipline
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid curriculum ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Add a discipline to a curriculum
+      tags:
+      - curriculums
   /disciplines:
     get:
       description: Retrieves all disciplines
@@ -1083,6 +1118,41 @@ paths:
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
       summary: Update an existing reservation
+      tags:
+      - reservations
+  /reservations/{id}/resources:
+    post:
+      consumes:
+      - application/json
+      description: Associates a resource with a reservation (many-to-many relation)
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Resource ID to add
+        in: body
+        name: resource
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid reservation ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Add a resource to a reservation
       tags:
       - reservations
   /resources:

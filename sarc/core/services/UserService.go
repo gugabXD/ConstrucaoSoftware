@@ -2,13 +2,10 @@ package services
 
 import (
 	"errors"
-
 	"sarc/core/domain"
-
-	"gorm.io/gorm"
+	"sarc/infrastructure/repositories"
 )
 
-// UserService interface for dependency injection and testing
 type UserService interface {
 	CreateUser(user *domain.User) (*domain.User, error)
 	GetUsers() ([]domain.User, error)
@@ -18,54 +15,42 @@ type UserService interface {
 }
 
 type userService struct {
-	db *gorm.DB
+	repo repositories.UserRepository
 }
 
-// NewUserService creates a new UserService using a database connection
-func NewUserService(db *gorm.DB) UserService {
-	return &userService{db: db}
+func NewUserService(repo repositories.UserRepository) UserService {
+	return &userService{repo: repo}
 }
 
 func (s *userService) CreateUser(user *domain.User) (*domain.User, error) {
-	if err := s.db.Create(user).Error; err != nil {
+	if err := s.repo.Create(user); err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
 func (s *userService) GetUsers() ([]domain.User, error) {
-	var users []domain.User
-	if err := s.db.Find(&users).Error; err != nil {
-		return nil, err
-	}
-	return users, nil
+	return s.repo.FindAll()
 }
 
 func (s *userService) GetUserByID(id uint) (*domain.User, error) {
-	var user domain.User
-	if err := s.db.First(&user, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("user not found")
-		}
+	user, err := s.repo.FindByID(id)
+	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+	return user, nil
 }
 
 func (s *userService) UpdateUser(id uint, updated *domain.User) (*domain.User, error) {
-	var user domain.User
-	if err := s.db.First(&user, id).Error; err != nil {
+	if err := s.repo.Update(id, updated); err != nil {
 		return nil, err
 	}
-	if err := s.db.Model(&user).Updates(updated).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
+	return s.repo.FindByID(id)
 }
 
 func (s *userService) DeleteUser(id uint) error {
-	if err := s.db.Delete(&domain.User{}, id).Error; err != nil {
-		return err
-	}
-	return nil
+	return s.repo.Delete(id)
 }
