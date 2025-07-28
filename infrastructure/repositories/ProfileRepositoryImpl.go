@@ -39,7 +39,7 @@ func (r *profileRepositoryImpl) FindAll() ([]domain.Profile, error) {
 }
 
 func (r *profileRepositoryImpl) FindByID(id uint) (*domain.Profile, error) {
-	row := r.db.QueryRow("SELECT profile_id, role FROM profiles WHERE id = $1", id)
+	row := r.db.QueryRow("SELECT profile_id, role FROM profiles WHERE profile_id = $1", id)
 	var p domain.Profile
 	if err := row.Scan(&p.ID, &p.Role); err != nil {
 		return nil, err
@@ -49,13 +49,13 @@ func (r *profileRepositoryImpl) FindByID(id uint) (*domain.Profile, error) {
 
 func (r *profileRepositoryImpl) Update(id uint, profile *domain.Profile) error {
 	_, err := r.db.Exec(
-		"UPDATE profiles SET role = $1 WHERE id = $2",
+		"UPDATE profiles SET role = $1 WHERE profile_id = $2",
 		profile.Role, id,
 	)
 	return err
 }
 
 func (r *profileRepositoryImpl) Delete(id uint) error {
-	_, err := r.db.Exec("DELETE FROM profiles WHERE id = $1", id)
+	_, err := r.db.Exec("DELETE FROM profiles WHERE profile_id = $1", id)
 	return err
 }

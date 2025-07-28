@@ -3,8 +3,6 @@ definitions:
     properties:
       address:
         type: string
-      buildingId:
-        type: integer
       buildingName:
         type: string
     type: object
@@ -13,8 +11,6 @@ definitions:
       description:
         type: string
       disciplineId:
-        type: integer
-      id:
         type: integer
       name:
         type: string
@@ -31,8 +27,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.Discipline'
         type: array
-      id:
-        type: integer
     type: object
   domain.Discipline:
     properties:
@@ -41,8 +35,6 @@ definitions:
           type: string
         type: array
       credits:
-        type: integer
-      id:
         type: integer
       name:
         type: string
@@ -64,8 +56,6 @@ definitions:
         type: array
       date:
         type: string
-      lectureId:
-        type: integer
       presence:
         items:
           $ref: '#/definitions/domain.User'
@@ -75,8 +65,6 @@ definitions:
     type: object
   domain.Profile:
     properties:
-      id:
-        type: integer
       role:
         type: string
     type: object
@@ -86,8 +74,6 @@ definitions:
         type: integer
       observation:
         type: string
-      reservationId:
-        type: integer
       resources:
         items:
           $ref: '#/definitions/domain.Resource'
@@ -104,8 +90,8 @@ definitions:
         type: array
       description:
         type: string
-      resourceId:
-        type: integer
+      resourceType:
+        $ref: '#/definitions/domain.ResourceType'
       resourceTypeId:
         type: integer
       status:
@@ -121,6 +107,11 @@ definitions:
     - ResourceStatusAvailable
     - ResourceStatusUnavailable
     - ResourceStatusReserved
+  domain.ResourceType:
+    properties:
+      name:
+        type: string
+    type: object
   domain.Room:
     properties:
       buildingId:
@@ -128,8 +119,6 @@ definitions:
       floor:
         type: integer
       roomCapacity:
-        type: integer
-      roomId:
         type: integer
       roomNumber:
         type: string
@@ -140,8 +129,6 @@ definitions:
         type: string
       email:
         type: string
-      id:
-        type: integer
       nome:
         type: string
       profileId:

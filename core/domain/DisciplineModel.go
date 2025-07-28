@@ -5,7 +5,7 @@ import (
 )
 
 type Discipline struct {
-	ID           uint           `gorm:"primaryKey" json:"id"`
+	ID           uint           `gorm:"primaryKey" json:"id,omitempty" swaggerignore:"true"`
 	Name         string         `json:"name"`
 	Credits      int            `json:"credits"`
 	Program      string         `json:"program"`
@@ -13,7 +13,7 @@ type Discipline struct {
 }
 
 type Curriculum struct {
-	ID          uint         `gorm:"primaryKey" json:"id"`
+	ID          uint         `gorm:"primaryKey" json:"id,omitempty" swaggerignore:"true"`
 	CourseName  string       `json:"courseName"`
 	DataInicio  string       `json:"dataInicio"`
 	DataFim     string       `json:"dataFim"`
