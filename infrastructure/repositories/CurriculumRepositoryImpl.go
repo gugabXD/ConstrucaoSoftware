@@ -95,14 +95,14 @@ func (r *curriculumRepositoryImpl) FindAll() ([]domain.Curriculum, error) {
 
 func (r *curriculumRepositoryImpl) Update(id uint, curriculum *domain.Curriculum) error {
 	_, err := r.db.Exec(
-		"UPDATE curriculums SET course_name = $1, data_inicio = $2, data_fim = $3 WHERE id = $4",
+		"UPDATE curriculums SET course_name = $1, data_inicio = $2, data_fim = $3 WHERE curriculum_id = $4",
 		curriculum.CourseName, curriculum.DataInicio, curriculum.DataFim, id,
 	)
 	return err
 }
 
 func (r *curriculumRepositoryImpl) Delete(id uint) error {
-	_, err := r.db.Exec("DELETE FROM curriculums WHERE id = $1", id)
+	_, err := r.db.Exec("DELETE FROM curriculums WHERE curriculum_id = $1", id)
 	return err
 }
 

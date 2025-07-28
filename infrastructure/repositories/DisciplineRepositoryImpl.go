@@ -39,7 +39,7 @@ func (r *disciplineRepositoryImpl) FindAll() ([]domain.Discipline, error) {
 }
 
 func (r *disciplineRepositoryImpl) FindByID(id uint) (*domain.Discipline, error) {
-	row := r.db.QueryRow("SELECT discipline_id, name, credits, program, bibliography FROM disciplines WHERE id = $1", id)
+	row := r.db.QueryRow("SELECT discipline_id, name, credits, program, bibliography FROM disciplines WHERE discipline_id = $1", id)
 	var d domain.Discipline
 	if err := row.Scan(&d.ID, &d.Name, &d.Credits, &d.Program, &d.Bibliography); err != nil {
 		return nil, err
@@ -49,13 +49,13 @@ func (r *disciplineRepositoryImpl) FindByID(id uint) (*domain.Discipline, error)
 
 func (r *disciplineRepositoryImpl) Update(id uint, discipline *domain.Discipline) error {
 	_, err := r.db.Exec(
-		"UPDATE disciplines SET name = $1, credits = $2, program = $3, bibliography = $4 WHERE id = $5",
+		"UPDATE disciplines SET name = $1, credits = $2, program = $3, bibliography = $4 WHERE discipline_id = $5",
 		discipline.Name, discipline.Credits, discipline.Program, discipline.Bibliography, id,
 	)
 	return err
 }
 
 func (r *disciplineRepositoryImpl) Delete(id uint) error {
-	_, err := r.db.Exec("DELETE FROM disciplines WHERE id = $1", id)
+	_, err := r.db.Exec("DELETE FROM disciplines WHERE discipline_id = $1", id)
 	return err
 }

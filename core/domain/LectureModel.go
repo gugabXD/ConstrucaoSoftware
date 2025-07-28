@@ -5,7 +5,7 @@ import (
 )
 
 type Lecture struct {
-	LectureID uint           `gorm:"primaryKey" json:"lectureId"`
+	LectureID uint           `gorm:"primaryKey" json:"lectureId,omitempty" swaggerignore:"true"`
 	ClassID   uint           `json:"classId"`
 	RoomID    uint           `json:"roomId"`
 	Date      string         `json:"date"`

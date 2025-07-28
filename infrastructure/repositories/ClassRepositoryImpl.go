@@ -39,7 +39,7 @@ func (r *classRepositoryImpl) FindAll() ([]domain.Class, error) {
 }
 
 func (r *classRepositoryImpl) FindByID(id uint) (*domain.Class, error) {
-	row := r.db.QueryRow("SELECT class_id, name, description, discipline_id FROM classes WHERE id = $1", id)
+	row := r.db.QueryRow("SELECT class_id, name, description, discipline_id FROM classes WHERE class_id = $1", id)
 	var c domain.Class
 	if err := row.Scan(&c.ClassID, &c.Name, &c.Description, &c.DisciplineID); err != nil {
 		return nil, err
@@ -49,13 +49,13 @@ func (r *classRepositoryImpl) FindByID(id uint) (*domain.Class, error) {
 
 func (r *classRepositoryImpl) Update(id uint, class *domain.Class) error {
 	_, err := r.db.Exec(
-		"UPDATE classes SET name = $1, description = $2, discipline_id = $3 WHERE id = $4",
+		"UPDATE classes SET name = $1, description = $2, discipline_id = $3 WHERE class_id = $4",
 		class.Name, class.Description, class.DisciplineID, id,
 	)
 	return err
 }
 
 func (r *classRepositoryImpl) Delete(id uint) error {
-	_, err := r.db.Exec("DELETE FROM classes WHERE id = $1", id)
+	_, err := r.db.Exec("DELETE FROM classes WHERE class_id = $1", id)
 	return err
 }

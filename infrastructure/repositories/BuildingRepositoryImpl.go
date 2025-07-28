@@ -39,7 +39,7 @@ func (r *buildingRepositoryImpl) FindAll() ([]domain.Building, error) {
 }
 
 func (r *buildingRepositoryImpl) FindByID(id uint) (*domain.Building, error) {
-	row := r.db.QueryRow("SELECT building_id, building_name, address FROM buildings WHERE id = $1", id)
+	row := r.db.QueryRow("SELECT building_id, building_name, address FROM buildings WHERE building_id = $1", id)
 	var b domain.Building
 	if err := row.Scan(&b.BuildingID, &b.BuildingName, &b.Address); err != nil {
 		return nil, err
@@ -49,13 +49,13 @@ func (r *buildingRepositoryImpl) FindByID(id uint) (*domain.Building, error) {
 
 func (r *buildingRepositoryImpl) Update(id uint, building *domain.Building) error {
 	_, err := r.db.Exec(
-		"UPDATE buildings SET building_name = $1, address = $2 WHERE id = $3",
+		"UPDATE buildings SET building_name = $1, address = $2 WHERE building_id = $3",
 		building.BuildingName, building.Address, id,
 	)
 	return err
 }
 
 func (r *buildingRepositoryImpl) Delete(id uint) error {
-	_, err := r.db.Exec("DELETE FROM buildings WHERE id = $1", id)
+	_, err := r.db.Exec("DELETE FROM buildings WHERE building_id = $1", id)
 	return err
 }

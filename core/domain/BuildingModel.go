@@ -1,13 +1,13 @@
 package domain
 
 type Building struct {
-	BuildingID   uint   `gorm:"primaryKey" json:"buildingId"`
+	BuildingID   uint   `gorm:"primaryKey" json:"buildingId,omitempty" swaggerignore:"true"`
 	BuildingName string `json:"buildingName"`
 	Address      string `json:"address"`
 }
 
 type Room struct {
-	RoomID       uint   `gorm:"primaryKey" json:"roomId"`
+	RoomID       uint   `gorm:"primaryKey" json:"roomId,omitempty" swaggerignore:"true"`
 	RoomCapacity int    `json:"roomCapacity"`
 	Floor        int    `json:"floor"`
 	BuildingID   uint   `json:"buildingId"`

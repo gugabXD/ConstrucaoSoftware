@@ -7,7 +7,7 @@ import (
 // Resource represents a resource in the system.
 // swagger:model
 type Resource struct {
-	ResourceID  uint           `gorm:"primaryKey" json:"resourceId"`
+	ResourceID  uint           `gorm:"primaryKey" json:"resourceId,omitempty" swaggerignore:"true"`
 	Description string         `json:"description"`
 	Status      ResourceStatus `json:"status"`
 	// Characteristics is an array of strings stored as Postgres text[].
@@ -20,7 +20,7 @@ type Resource struct {
 // ResourceType represents the type of a resource.
 // swagger:model
 type ResourceType struct {
-	ResourceTypeID uint   `gorm:"primaryKey" json:"id"`
+	ResourceTypeID uint   `gorm:"primaryKey" json:"id,omitempty" swaggerignore:"true"`
 	Name           string `json:"name"`
 }
 
