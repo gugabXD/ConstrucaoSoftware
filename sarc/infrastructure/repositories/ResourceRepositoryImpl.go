@@ -14,15 +14,19 @@ func NewResourceRepository(db *sql.DB) ResourceRepository {
 }
 
 func (r *resourceRepositoryImpl) Create(resource *domain.Resource) error {
-	_, err := r.db.Exec(
-		"INSERT INTO resources (description, status, characteristics, resource_type_id) VALUES ($1, $2, $3, $4)",
+	return r.db.QueryRow(
+		"INSERT INTO resources (description, status, characteristics, resource_type_id) VALUES ($1, $2, $3, $4) RETURNING resource_id",
 		resource.Description, resource.Status, resource.Characteristics, resource.ResourceTypeID,
-	)
-	return err
+	).Scan(&resource.ResourceID)
 }
 
 func (r *resourceRepositoryImpl) FindAll() ([]domain.Resource, error) {
-	rows, err := r.db.Query("SELECT resource_id, description, status, characteristics, resource_type_id FROM resources")
+	rows, err := r.db.Query(`
+        SELECT res.resource_id, res.description, res.status, res.characteristics, res.resource_type_id,
+               rt.resource_type_id, rt.name
+        FROM resources res
+        LEFT JOIN resource_types rt ON res.resource_type_id = rt.resource_type_id
+    `)
 	if err != nil {
 		return nil, err
 	}
@@ -31,20 +35,30 @@ func (r *resourceRepositoryImpl) FindAll() ([]domain.Resource, error) {
 	var resources []domain.Resource
 	for rows.Next() {
 		var res domain.Resource
-		if err := rows.Scan(&res.ResourceID, &res.Description, &res.Status, &res.Characteristics, &res.ResourceTypeID); err != nil {
+		var rt domain.ResourceType
+		if err := rows.Scan(&res.ResourceID, &res.Description, &res.Status, &res.Characteristics, &res.ResourceTypeID, &rt.ResourceTypeID, &rt.Name); err != nil {
 			return nil, err
 		}
+		res.ResourceType = &rt
 		resources = append(resources, res)
 	}
 	return resources, nil
 }
 
 func (r *resourceRepositoryImpl) FindByID(id uint) (*domain.Resource, error) {
-	row := r.db.QueryRow("SELECT resource_id, description, status, characteristics, resource_type_id FROM resources WHERE resource_id = $1", id)
+	row := r.db.QueryRow(`
+        SELECT res.resource_id, res.description, res.status, res.characteristics, res.resource_type_id,
+               rt.resource_type_id, rt.name
+        FROM resources res
+        LEFT JOIN resource_types rt ON res.resource_type_id = rt.resource_type_id
+        WHERE res.resource_id = $1
+    `, id)
 	var res domain.Resource
-	if err := row.Scan(&res.ResourceID, &res.Description, &res.Status, &res.Characteristics, &res.ResourceTypeID); err != nil {
+	var rt domain.ResourceType
+	if err := row.Scan(&res.ResourceID, &res.Description, &res.Status, &res.Characteristics, &res.ResourceTypeID, &rt.ResourceTypeID, &rt.Name); err != nil {
 		return nil, err
 	}
+	res.ResourceType = &rt
 	return &res, nil
 }
 

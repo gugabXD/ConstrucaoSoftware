@@ -14,11 +14,10 @@ func NewUserRepository(db *sql.DB) UserRepository {
 }
 
 func (r *userRepositoryImpl) Create(user *domain.User) error {
-	_, err := r.db.Exec(
-		"INSERT INTO users (email, nome, birth_date, sex, telephone, profile_id) VALUES ($1, $2, $3, $4, $5, $6)",
+	return r.db.QueryRow(
+		"INSERT INTO users (email, nome, birth_date, sex, telephone, profile_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id",
 		user.Email, user.Nome, user.BirthDate, user.Sex, user.Telephone, user.ProfileID,
-	)
-	return err
+	).Scan(&user.ID)
 }
 
 func (r *userRepositoryImpl) FindAll() ([]domain.User, error) {

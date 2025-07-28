@@ -14,11 +14,10 @@ func NewCurriculumRepository(db *sql.DB) CurriculumRepository {
 }
 
 func (r *curriculumRepositoryImpl) Create(curriculum *domain.Curriculum) error {
-	_, err := r.db.Exec(
-		"INSERT INTO curriculums (course_name, data_inicio, data_fim) VALUES ($1, $2, $3)",
+	return r.db.QueryRow(
+		"INSERT INTO curriculums (course_name, data_inicio, data_fim) VALUES ($1, $2, $3) RETURNING curriculum_id",
 		curriculum.CourseName, curriculum.DataInicio, curriculum.DataFim,
-	)
-	return err
+	).Scan(&curriculum.ID)
 }
 
 func (r *curriculumRepositoryImpl) FindByID(id uint) (*domain.Curriculum, error) {

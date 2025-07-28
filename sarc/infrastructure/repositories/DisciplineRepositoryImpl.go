@@ -14,11 +14,10 @@ func NewDisciplineRepository(db *sql.DB) DisciplineRepository {
 }
 
 func (r *disciplineRepositoryImpl) Create(discipline *domain.Discipline) error {
-	_, err := r.db.Exec(
-		"INSERT INTO disciplines (name, credits, program, bibliography) VALUES ($1, $2, $3, $4)",
+	return r.db.QueryRow(
+		"INSERT INTO disciplines (name, credits, program, bibliography) VALUES ($1, $2, $3, $4) RETURNING discipline_id",
 		discipline.Name, discipline.Credits, discipline.Program, discipline.Bibliography,
-	)
-	return err
+	).Scan(&discipline.ID)
 }
 
 func (r *disciplineRepositoryImpl) FindAll() ([]domain.Discipline, error) {

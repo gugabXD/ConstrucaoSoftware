@@ -14,11 +14,10 @@ func NewClassRepository(db *sql.DB) ClassRepository {
 }
 
 func (r *classRepositoryImpl) Create(class *domain.Class) error {
-	_, err := r.db.Exec(
-		"INSERT INTO classes (name, description, discipline_id) VALUES ($1, $2, $3)",
+	return r.db.QueryRow(
+		"INSERT INTO classes (name, description, discipline_id) VALUES ($1, $2, $3) RETURNING class_id",
 		class.Name, class.Description, class.DisciplineID,
-	)
-	return err
+	).Scan(&class.ClassID)
 }
 
 func (r *classRepositoryImpl) FindAll() ([]domain.Class, error) {
@@ -31,7 +30,7 @@ func (r *classRepositoryImpl) FindAll() ([]domain.Class, error) {
 	var classes []domain.Class
 	for rows.Next() {
 		var c domain.Class
-		if err := rows.Scan(&c.ID, &c.Name, &c.Description, &c.DisciplineID); err != nil {
+		if err := rows.Scan(&c.ClassID, &c.Name, &c.Description, &c.DisciplineID); err != nil {
 			return nil, err
 		}
 		classes = append(classes, c)
@@ -42,7 +41,7 @@ func (r *classRepositoryImpl) FindAll() ([]domain.Class, error) {
 func (r *classRepositoryImpl) FindByID(id uint) (*domain.Class, error) {
 	row := r.db.QueryRow("SELECT class_id, name, description, discipline_id FROM classes WHERE id = $1", id)
 	var c domain.Class
-	if err := row.Scan(&c.ID, &c.Name, &c.Description, &c.DisciplineID); err != nil {
+	if err := row.Scan(&c.ClassID, &c.Name, &c.Description, &c.DisciplineID); err != nil {
 		return nil, err
 	}
 	return &c, nil

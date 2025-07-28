@@ -14,11 +14,10 @@ func NewLectureRepository(db *sql.DB) LectureRepository {
 }
 
 func (r *lectureRepositoryImpl) Create(lecture *domain.Lecture) error {
-	_, err := r.db.Exec(
-		"INSERT INTO lectures (class_id, room_id, date, content) VALUES ($1, $2, $3, $4)",
+	return r.db.QueryRow(
+		"INSERT INTO lectures (class_id, room_id, date, content) VALUES ($1, $2, $3, $4) RETURNING lecture_id",
 		lecture.ClassID, lecture.RoomID, lecture.Date, lecture.Content,
-	)
-	return err
+	).Scan(&lecture.LectureID)
 }
 
 func (r *lectureRepositoryImpl) FindAll() ([]domain.Lecture, error) {

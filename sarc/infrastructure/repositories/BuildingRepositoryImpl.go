@@ -14,11 +14,10 @@ func NewBuildingRepository(db *sql.DB) BuildingRepository {
 }
 
 func (r *buildingRepositoryImpl) Create(building *domain.Building) error {
-	_, err := r.db.Exec(
-		"INSERT INTO buildings (building_name, address) VALUES ($1, $2)",
+	return r.db.QueryRow(
+		"INSERT INTO buildings (building_name, address) VALUES ($1, $2) RETURNING building_id",
 		building.BuildingName, building.Address,
-	)
-	return err
+	).Scan(&building.BuildingID)
 }
 
 func (r *buildingRepositoryImpl) FindAll() ([]domain.Building, error) {

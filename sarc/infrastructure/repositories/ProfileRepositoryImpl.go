@@ -14,11 +14,10 @@ func NewProfileRepository(db *sql.DB) ProfileRepository {
 }
 
 func (r *profileRepositoryImpl) Create(profile *domain.Profile) error {
-	_, err := r.db.Exec(
-		"INSERT INTO profiles (role) VALUES ($1)",
+	return r.db.QueryRow(
+		"INSERT INTO profiles (role) VALUES ($1) RETURNING profile_id",
 		profile.Role,
-	)
-	return err
+	).Scan(&profile.ID)
 }
 
 func (r *profileRepositoryImpl) FindAll() ([]domain.Profile, error) {

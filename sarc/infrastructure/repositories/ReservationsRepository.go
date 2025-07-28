@@ -14,11 +14,10 @@ func NewReservationRepository(db *sql.DB) ReservationRepository {
 }
 
 func (r *reservationRepositoryImpl) Create(reservation *domain.Reservation) error {
-	_, err := r.db.Exec(
-		"INSERT INTO reservations (lecture_id, observation) VALUES ($1, $2)",
+	return r.db.QueryRow(
+		"INSERT INTO reservations (lecture_id, observation) VALUES ($1, $2) RETURNING reservation_id",
 		reservation.LectureID, reservation.Observation,
-	)
-	return err
+	).Scan(&reservation.ReservationID)
 }
 
 func (r *reservationRepositoryImpl) FindByID(id uint) (*domain.Reservation, error) {

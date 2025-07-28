@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"sarc/core/domain"
+	"sarc/core/services"
 	"sarc/infrastructure/repositories"
 
 	_ "github.com/lib/pq"
@@ -138,132 +140,156 @@ func Connect() {
 		log.Fatal("Failed to clear tables:", err)
 	}
 
-	// --- Seed default data ---
-	_, err = DB.Exec(`INSERT INTO profiles (role) VALUES ('admin') ON CONFLICT DO NOTHING`)
+	// Instantiate repositories
+	profileRepo := repositories.NewProfileRepository(DB)
+	userRepo := repositories.NewUserRepository(DB)
+	buildingRepo := repositories.NewBuildingRepository(DB)
+	roomRepo := repositories.NewRoomRepository(DB)
+	disciplineRepo := repositories.NewDisciplineRepository(DB)
+	curriculumRepo := repositories.NewCurriculumRepository(DB)
+	classRepo := repositories.NewClassRepository(DB)
+	lectureRepo := repositories.NewLectureRepository(DB)
+	resourceTypeRepo := repositories.NewResourceTypeRepository(DB)
+	resourceRepo := repositories.NewResourceRepository(DB)
+	reservationRepo := repositories.NewReservationRepository(DB)
+
+	// Instantiate services
+	profileService := services.NewProfileService(profileRepo)
+	userService := services.NewUserService(userRepo)
+	buildingService := services.NewBuildingService(buildingRepo)
+	roomService := services.NewRoomService(roomRepo)
+	disciplineService := services.NewDisciplineService(disciplineRepo)
+	curriculumService := services.NewCurriculumService(curriculumRepo)
+	classService := services.NewClassService(classRepo)
+	lectureService := services.NewLectureService(lectureRepo)
+	resourceService := services.NewResourceService(resourceRepo)
+	reservationService := services.NewReservationsService(reservationRepo)
+
+	// --- Seed data using services ---
+
+	// Profile
+	profile := &domain.Profile{Role: "admin"}
+	_, err = profileService.CreateProfile(profile)
 	if err != nil {
 		log.Fatal("Failed to seed profile:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO users (email, nome, birth_date, sex, telephone, profile_id)
-        VALUES ('admin@example.com', 'Admin', '1990-01-01', 'M', '123456789', 1)
-        ON CONFLICT DO NOTHING
-    `)
+	// User
+	user := &domain.User{
+		Email:     "admin@example.com",
+		Nome:      "Admin",
+		BirthDate: "1990-01-01",
+		Sex:       "M",
+		Telephone: "123456789",
+		ProfileID: 1,
+	}
+	_, err = userService.CreateUser(user)
 	if err != nil {
 		log.Fatal("Failed to seed user:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO buildings (building_name, address)
-        VALUES ('Main Building', '123 Main St')
-        ON CONFLICT DO NOTHING
-    `)
+	// Building
+	building := &domain.Building{
+		BuildingName: "Main Building",
+		Address:      "123 Main St",
+	}
+	_, err = buildingService.CreateBuilding(building)
 	if err != nil {
 		log.Fatal("Failed to seed building:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO rooms (room_number, building_id, room_capacity, floor)
-        VALUES ('101', 1, 30, 1)
-        ON CONFLICT DO NOTHING
-    `)
+	// Room
+	room := &domain.Room{
+		RoomNumber:   "101",
+		BuildingID:   1,
+		RoomCapacity: 30,
+		Floor:        1,
+	}
+	_, err = roomService.CreateRoom(room)
 	if err != nil {
 		log.Fatal("Failed to seed room:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO disciplines (name, credits, program, bibliography)
-        VALUES ('Mathematics', 4, 'Basic Math Program', ARRAY['Book 1', 'Book 2'])
-        ON CONFLICT DO NOTHING
-    `)
+	// Discipline
+	discipline := &domain.Discipline{
+		Name:         "Mathematics",
+		Credits:      4,
+		Program:      "Basic Math Program",
+		Bibliography: []string{"Book 1", "Book 2"},
+	}
+	_, err = disciplineService.CreateDiscipline(discipline)
 	if err != nil {
 		log.Fatal("Failed to seed discipline:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO curriculums (course_name, data_inicio, data_fim)
-        VALUES ('Engineering', '2025-01-01', '2029-01-01')
-        ON CONFLICT DO NOTHING
-    `)
+	// Curriculum
+	curriculum := &domain.Curriculum{
+		CourseName: "Engineering",
+		DataInicio: "2025-01-01",
+		DataFim:    "2029-01-01",
+		Disciplines: []domain.Discipline{
+			{ID: 1}, // Add discipline by ID
+		},
+	}
+	_, err = curriculumService.CreateCurriculum(curriculum)
 	if err != nil {
 		log.Fatal("Failed to seed curriculum:", err)
 	}
 
-	/*_, err = DB.Exec(`
-	        INSERT INTO curriculum_disciplines (curriculum_id, discipline_id)
-	        VALUES (1, 1)
-	        ON CONFLICT DO NOTHING
-	    `)
-		if err != nil {
-			log.Fatal("Failed to seed curriculum_disciplines:", err)
-		}*/
-
-	_, err = DB.Exec(`
-        INSERT INTO classes (name, description, discipline_id)
-        VALUES ('Math 101', 'Intro to Math', 1)
-        ON CONFLICT DO NOTHING
-    `)
+	// Class
+	class := &domain.Class{
+		Name:         "Math 101",
+		Description:  "Intro to Math",
+		DisciplineID: 1,
+	}
+	_, err = classService.CreateClass(class)
 	if err != nil {
 		log.Fatal("Failed to seed class:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO lectures (class_id, room_id, date, content)
-        VALUES (1, 1, '2025-09-01', ARRAY['Introduction', 'Numbers'])
-        ON CONFLICT DO NOTHING
-    `)
+	// Lecture
+	lecture := &domain.Lecture{
+		ClassID: 1,
+		RoomID:  1,
+		Date:    "2025-09-01",
+		Content: []string{"Introduction", "Numbers"},
+	}
+	_, err = lectureService.CreateLecture(lecture)
 	if err != nil {
 		log.Fatal("Failed to seed lecture:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO resource_types (name)
-        VALUES ('Projector')
-        ON CONFLICT DO NOTHING
-    `)
+	// ResourceType
+	resourceType := &domain.ResourceType{
+		Name: "Projector",
+	}
+	err = resourceTypeRepo.Create(resourceType)
 	if err != nil {
-		log.Fatal("Failed to seed resource_type:", err)
+		log.Fatal("Failed to seed resource type:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO resources (description, status, characteristics, resource_type_id)
-        VALUES ('Epson Projector', 'available', ARRAY['HD', 'HDMI'], 1)
-        ON CONFLICT DO NOTHING
-    `)
+	// Resource
+	resource := &domain.Resource{
+		Description:     "Epson Projector",
+		Status:          "available",
+		Characteristics: []string{"HD", "HDMI"},
+		ResourceTypeID:  1,
+	}
+	_, err = resourceService.CreateResource(resource)
 	if err != nil {
 		log.Fatal("Failed to seed resource:", err)
 	}
 
-	_, err = DB.Exec(`
-        INSERT INTO reservations (lecture_id, observation)
-        VALUES (1, 'First class reservation')
-        ON CONFLICT DO NOTHING
-    `)
+	// Reservation
+	reservation := &domain.Reservation{
+		LectureID:   1,
+		Observation: "First class reservation",
+		Resources:   []domain.Resource{{ResourceID: 1}}, // Add resource by ID
+	}
+	_, err = reservationService.CreateReservation(reservation)
 	if err != nil {
 		log.Fatal("Failed to seed reservation:", err)
 	}
 
-	/*_, err = DB.Exec(`
-	        INSERT INTO reservation_resources (reservation_id, resource_id)
-	        VALUES (1, 1)
-	        ON CONFLICT DO NOTHING
-	    `)
-		if err != nil {
-			log.Fatal("Failed to seed reservation_resources:", err)
-		}*/
-
-	// Use repository methods to connect discipline to curriculum and resource to reservation
-	curriculumRepo := repositories.NewCurriculumRepository(DB)
-	reservationRepo := repositories.NewReservationRepository(DB)
-
-	// Add discipline (id=1) to curriculum (id=1)
-	if err := curriculumRepo.AddDisciplineToCurriculum(1, 1); err != nil {
-		log.Fatal("Failed to connect discipline to curriculum:", err)
-	}
-
-	// Add resource (id=1) to reservation (id=1)
-	if err := reservationRepo.AddResourceToReservation(1, 1); err != nil {
-		log.Fatal("Failed to connect resource to reservation:", err)
-	}
 	fmt.Println("Database connected and migrated!")
 }

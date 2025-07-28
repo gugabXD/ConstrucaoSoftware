@@ -1,7 +1,7 @@
 package domain
 
 type Class struct {
-	ID           uint   `gorm:"primaryKey" json:"id"`
+	ClassID      uint   `gorm:"primaryKey" json:"classId"`
 	Name         string `json:"name"`
 	Description  string `json:"description"`
 	DisciplineID uint   `json:"disciplineId"`
