@@ -7,12 +7,15 @@ import (
 	"sarc/infrastructure/repositories"
 	"sarc/pkg/db"
 
+	"github.com/joho/godotenv"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
+	godotenv.Load()
 	// Connect to the database
 	db.Connect()
 
