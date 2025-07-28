@@ -43,5 +43,21 @@ cp .env.example .env
 
 ---
 
+### 6. Run the Project with Docker
+
+To build and start the application and database using Docker Compose, run:
+
+```sh
+docker-compose up --build
+```
+
+This will build your Go application and start both the app and the Postgres database in containers.
+
+To stop the containers, press `Ctrl+C` and then run:
+
+```sh
+docker-compose down
+```
+
 **Note:**  
 These files are ignored in version control, so each developer must
