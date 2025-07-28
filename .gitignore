@@ -1,14 +1,13 @@
 # Go build artifacts
-sarc/bin/
-sarc/*.exe
-sarc/*.test
-sarc/coverage.out
+bin/
+.exe
+coverage.out
 
 # Go modules
-sarc/go.sum
+go.sum
 
 # Dependency directories
-sarc/vendor/
+vendor/
 
 # IDE/editor files
 .vscode/
@@ -23,7 +22,19 @@ Thumbs.db
 *.tmp
 
 # Swagger generated files (if any)
-sarc/docs/docs.go
+docs/docs.go
+
+#.env files
+.env
+
+# Configuration files
+config.yaml
+# Generated files
+swagger.json
+# Go test files
+*_test.go
+
+
 
 # Misc
 *.bak
