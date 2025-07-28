@@ -1,0 +1,1557 @@
+definitions:
+  domain.Building:
+    properties:
+      address:
+        type: string
+      buildingId:
+        type: integer
+      buildingName:
+        type: string
+    type: object
+  domain.Class:
+    properties:
+      description:
+        type: string
+      disciplineId:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  domain.Curriculum:
+    properties:
+      courseName:
+        type: string
+      dataFim:
+        type: string
+      dataInicio:
+        type: string
+      disciplines:
+        items:
+          $ref: '#/definitions/domain.Discipline'
+        type: array
+      id:
+        type: integer
+    type: object
+  domain.Discipline:
+    properties:
+      bibliography:
+        items:
+          type: string
+        type: array
+      credits:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      program:
+        type: string
+    type: object
+  domain.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  domain.Lecture:
+    properties:
+      classId:
+        type: integer
+      content:
+        items:
+          type: string
+        type: array
+      date:
+        type: string
+      lectureId:
+        type: integer
+      presence:
+        items:
+          $ref: '#/definitions/domain.User'
+        type: array
+      roomId:
+        type: integer
+    type: object
+  domain.Profile:
+    properties:
+      id:
+        type: integer
+      role:
+        type: string
+    type: object
+  domain.Reservation:
+    properties:
+      lectureId:
+        type: integer
+      observation:
+        type: string
+      reservationId:
+        type: integer
+      resources:
+        items:
+          $ref: '#/definitions/domain.Resource'
+        type: array
+    type: object
+  domain.Resource:
+    properties:
+      characteristics:
+        description: |-
+          Characteristics is an array of strings stored as Postgres text[].
+          For Swagger, treat as []string.
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      resourceId:
+        type: integer
+      resourceTypeId:
+        type: integer
+      status:
+        $ref: '#/definitions/domain.ResourceStatus'
+    type: object
+  domain.ResourceStatus:
+    enum:
+    - available
+    - unavailable
+    - reserved
+    type: string
+    x-enum-varnames:
+    - ResourceStatusAvailable
+    - ResourceStatusUnavailable
+    - ResourceStatusReserved
+  domain.Room:
+    properties:
+      buildingId:
+        type: integer
+      floor:
+        type: integer
+      roomCapacity:
+        type: integer
+      roomId:
+        type: integer
+      roomNumber:
+        type: string
+    type: object
+  domain.User:
+    properties:
+      birthDate:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nome:
+        type: string
+      profileId:
+        type: integer
+      sex:
+        type: string
+      telephone:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /buildings:
+    get:
+      description: Retrieves all buildings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Building'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all buildings
+      tags:
+      - buildings
+    post:
+      consumes:
+      - application/json
+      description: Creates a new building in the system
+      parameters:
+      - description: Building data
+        in: body
+        name: building
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Building'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Building'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new building
+      tags:
+      - buildings
+  /buildings/{id}:
+    delete:
+      description: Deletes a building by its ID
+      parameters:
+      - description: Building ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a building
+      tags:
+      - buildings
+    get:
+      description: Retrieves a building by its ID
+      parameters:
+      - description: Building ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Building'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Building not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get building by ID
+      tags:
+      - buildings
+    put:
+      consumes:
+      - application/json
+      description: Updates the building information for the given building ID
+      parameters:
+      - description: Building ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Building data
+        in: body
+        name: building
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Building'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Building'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing building
+      tags:
+      - buildings
+  /classes:
+    get:
+      description: Retrieves all classes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Class'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all classes
+      tags:
+      - classes
+    post:
+      consumes:
+      - application/json
+      description: Creates a new class in the system
+      parameters:
+      - description: Class data
+        in: body
+        name: class
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Class'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Class'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new class
+      tags:
+      - classes
+  /classes/{id}:
+    delete:
+      description: Deletes a class by its ID
+      parameters:
+      - description: Class ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a class
+      tags:
+      - classes
+    get:
+      description: Retrieves a class by its ID
+      parameters:
+      - description: Class ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Class'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Class not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get class by ID
+      tags:
+      - classes
+    put:
+      consumes:
+      - application/json
+      description: Updates the class information for the given class ID
+      parameters:
+      - description: Class ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Class data
+        in: body
+        name: class
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Class'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Class'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing class
+      tags:
+      - classes
+  /curriculums:
+    get:
+      description: Retrieves all curriculums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Curriculum'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all curriculums
+      tags:
+      - curriculums
+    post:
+      consumes:
+      - application/json
+      description: Creates a new curriculum in the system
+      parameters:
+      - description: Curriculum data
+        in: body
+        name: curriculum
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Curriculum'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Curriculum'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new curriculum
+      tags:
+      - curriculums
+  /curriculums/{id}:
+    delete:
+      description: Deletes a curriculum by its ID
+      parameters:
+      - description: Curriculum ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a curriculum
+      tags:
+      - curriculums
+    get:
+      description: Retrieves a curriculum by its ID
+      parameters:
+      - description: Curriculum ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Curriculum'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Curriculum not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get curriculum by ID
+      tags:
+      - curriculums
+    put:
+      consumes:
+      - application/json
+      description: Updates the curriculum information for the given curriculum ID
+      parameters:
+      - description: Curriculum ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Curriculum data
+        in: body
+        name: curriculum
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Curriculum'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Curriculum'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing curriculum
+      tags:
+      - curriculums
+  /curriculums/{id}/disciplines:
+    post:
+      consumes:
+      - application/json
+      description: Associates a discipline with a curriculum (many-to-many relation)
+      parameters:
+      - description: Curriculum ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Discipline ID to add
+        in: body
+        name: discipline
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid curriculum ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Add a discipline to a curriculum
+      tags:
+      - curriculums
+  /disciplines:
+    get:
+      description: Retrieves all disciplines
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Discipline'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all disciplines
+      tags:
+      - disciplines
+    post:
+      consumes:
+      - application/json
+      description: Creates a new discipline in the system
+      parameters:
+      - description: Discipline data
+        in: body
+        name: discipline
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Discipline'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Discipline'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new discipline
+      tags:
+      - disciplines
+  /disciplines/{id}:
+    delete:
+      description: Deletes a discipline by its ID
+      parameters:
+      - description: Discipline ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a discipline
+      tags:
+      - disciplines
+    get:
+      description: Retrieves a discipline by its ID
+      parameters:
+      - description: Discipline ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Discipline'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Discipline not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get discipline by ID
+      tags:
+      - disciplines
+    put:
+      consumes:
+      - application/json
+      description: Updates the discipline information for the given discipline ID
+      parameters:
+      - description: Discipline ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Discipline data
+        in: body
+        name: discipline
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Discipline'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Discipline'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing discipline
+      tags:
+      - disciplines
+  /lectures:
+    get:
+      description: Retrieves all lectures
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Lecture'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all lectures
+      tags:
+      - lectures
+    post:
+      consumes:
+      - application/json
+      description: Creates a new lecture in the system
+      parameters:
+      - description: Lecture data
+        in: body
+        name: lecture
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Lecture'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Lecture'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new lecture
+      tags:
+      - lectures
+  /lectures/{id}:
+    delete:
+      description: Deletes a lecture by its ID
+      parameters:
+      - description: Lecture ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a lecture
+      tags:
+      - lectures
+    get:
+      description: Retrieves a lecture by its ID
+      parameters:
+      - description: Lecture ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Lecture'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Lecture not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get lecture by ID
+      tags:
+      - lectures
+    put:
+      consumes:
+      - application/json
+      description: Updates the lecture information for the given lecture ID
+      parameters:
+      - description: Lecture ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lecture data
+        in: body
+        name: lecture
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Lecture'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Lecture'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing lecture
+      tags:
+      - lectures
+  /profiles:
+    get:
+      description: Retrieves all profiles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Profile'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all profiles
+      tags:
+      - profiles
+    post:
+      consumes:
+      - application/json
+      description: Creates a new profile in the system
+      parameters:
+      - description: Profile data
+        in: body
+        name: profile
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Profile'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Profile'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new profile
+      tags:
+      - profiles
+  /profiles/{id}:
+    delete:
+      description: Deletes a profile by its ID
+      parameters:
+      - description: Profile ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a profile
+      tags:
+      - profiles
+    get:
+      description: Retrieves a profile by its ID
+      parameters:
+      - description: Profile ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Profile'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Profile not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get profile by ID
+      tags:
+      - profiles
+    put:
+      consumes:
+      - application/json
+      description: Updates the profile information for the given profile ID
+      parameters:
+      - description: Profile ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Profile data
+        in: body
+        name: profile
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Profile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Profile'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing profile
+      tags:
+      - profiles
+  /reservations:
+    get:
+      description: Retrieves all reservations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Reservation'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all reservations
+      tags:
+      - reservations
+    post:
+      consumes:
+      - application/json
+      description: Creates a new reservation in the system
+      parameters:
+      - description: Reservation data
+        in: body
+        name: reservation
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Reservation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Reservation'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new reservation
+      tags:
+      - reservations
+  /reservations/{id}:
+    delete:
+      description: Deletes a reservation by its ID
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a reservation
+      tags:
+      - reservations
+    get:
+      description: Retrieves a reservation by its ID
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Reservation'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Reservation not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get reservation by ID
+      tags:
+      - reservations
+    put:
+      consumes:
+      - application/json
+      description: Updates the reservation information for the given reservation ID
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Reservation data
+        in: body
+        name: reservation
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Reservation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Reservation'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing reservation
+      tags:
+      - reservations
+  /reservations/{id}/resources:
+    post:
+      consumes:
+      - application/json
+      description: Associates a resource with a reservation (many-to-many relation)
+      parameters:
+      - description: Reservation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Resource ID to add
+        in: body
+        name: resource
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid reservation ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Add a resource to a reservation
+      tags:
+      - reservations
+  /resources:
+    get:
+      description: Retrieves all resources
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Resource'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all resources
+      tags:
+      - resources
+    post:
+      consumes:
+      - application/json
+      description: Creates a new resource in the system
+      parameters:
+      - description: Resource data
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Resource'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Resource'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new resource
+      tags:
+      - resources
+  /resources/{id}:
+    delete:
+      description: Deletes a resource by its ID
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a resource
+      tags:
+      - resources
+    get:
+      description: Retrieves a resource by its ID
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Resource'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Resource not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get resource by ID
+      tags:
+      - resources
+    put:
+      consumes:
+      - application/json
+      description: Updates the resource information for the given resource ID
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Resource data
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Resource'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Resource'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing resource
+      tags:
+      - resources
+  /rooms:
+    get:
+      description: Retrieves all rooms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Room'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all rooms
+      tags:
+      - rooms
+    post:
+      consumes:
+      - application/json
+      description: Creates a new room in the system
+      parameters:
+      - description: Room data
+        in: body
+        name: room
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Room'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Room'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new room
+      tags:
+      - rooms
+  /rooms/{id}:
+    delete:
+      description: Deletes a room by its ID
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a room
+      tags:
+      - rooms
+    get:
+      description: Retrieves a room by its ID
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Room'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Room not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get room by ID
+      tags:
+      - rooms
+    put:
+      consumes:
+      - application/json
+      description: Updates the room information for the given room ID
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Room data
+        in: body
+        name: room
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Room'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Room'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing room
+      tags:
+      - rooms
+  /users:
+    get:
+      description: Retrieves all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user in the system
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Deletes a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      description: Retrieves a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Updates the user information for the given user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Invalid ID or bad request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update an existing user
+      tags:
+      - users
+swagger: "2.0"
