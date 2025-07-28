@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"sarc/core/domain"
 	"sarc/core/services"
@@ -15,8 +16,16 @@ import (
 var DB *sql.DB
 
 func Connect() {
-	dsn := "host=localhost user=postgres password=yourpassword dbname=mydb port=5432 sslmode=disable"
 	var err error
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+	)
+	fmt.Println("DSN:", dsn)
 	DB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
