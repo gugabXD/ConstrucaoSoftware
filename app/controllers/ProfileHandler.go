@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"sarc/core/domain"
-	"sarc/core/services"
+	serviceinterfaces "sarc/core/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ProfileHandler struct {
-	Service services.ProfileService
+	Service serviceinterfaces.ProfileService
 }
 
-func NewProfileHandler(service services.ProfileService) *ProfileHandler {
+func NewProfileHandler(service serviceinterfaces.ProfileService) *ProfileHandler {
 	return &ProfileHandler{Service: service}
 }
 

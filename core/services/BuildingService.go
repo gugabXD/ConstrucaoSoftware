@@ -3,22 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type BuildingService interface {
-	CreateBuilding(building *domain.Building) (*domain.Building, error)
-	GetBuildings() ([]domain.Building, error)
-	GetBuildingByID(id uint) (*domain.Building, error)
-	UpdateBuilding(id uint, building *domain.Building) (*domain.Building, error)
-	DeleteBuilding(id uint) error
-}
 
 type buildingService struct {
 	repo repositories.BuildingRepository
 }
 
-func NewBuildingService(repo repositories.BuildingRepository) BuildingService {
+func NewBuildingService(repo repositories.BuildingRepository) interfaces.BuildingService {
 	return &buildingService{repo: repo}
 }
 

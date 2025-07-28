@@ -3,22 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type ClassService interface {
-	CreateClass(class *domain.Class) (*domain.Class, error)
-	GetClasses() ([]domain.Class, error)
-	GetClassByID(id uint) (*domain.Class, error)
-	UpdateClass(id uint, class *domain.Class) (*domain.Class, error)
-	DeleteClass(id uint) error
-}
 
 type classService struct {
 	repo repositories.ClassRepository
 }
 
-func NewClassService(repo repositories.ClassRepository) ClassService {
+func NewClassService(repo repositories.ClassRepository) interfaces.ClassService {
 	return &classService{repo: repo}
 }
 

@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"sarc/core/domain"
-	"sarc/core/services"
+	serviceinterfaces "sarc/core/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ReservationsHandler struct {
-	Service services.ReservationsService
+	Service serviceinterfaces.ReservationsService
 }
 
-func NewReservationsHandler(service services.ReservationsService) *ReservationsHandler {
+func NewReservationsHandler(service serviceinterfaces.ReservationsService) *ReservationsHandler {
 	return &ReservationsHandler{Service: service}
 }
 

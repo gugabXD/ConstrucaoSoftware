@@ -3,24 +3,16 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-// RoomService interface for dependency injection and testing
-type RoomService interface {
-	CreateRoom(room *domain.Room) (*domain.Room, error)
-	GetRooms() ([]domain.Room, error)
-	GetRoomByID(id uint) (*domain.Room, error)
-	UpdateRoom(id uint, room *domain.Room) (*domain.Room, error)
-	DeleteRoom(id uint) error
-}
 
 type roomService struct {
 	repo repositories.RoomRepository
 }
 
 // NewRoomService creates a new RoomService using a repository
-func NewRoomService(repo repositories.RoomRepository) RoomService {
+func NewRoomService(repo repositories.RoomRepository) interfaces.RoomService {
 	return &roomService{repo: repo}
 }
 

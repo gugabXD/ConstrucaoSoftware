@@ -4,7 +4,7 @@ import (
 	"sarc/app/controllers"
 	"sarc/core/services"
 	_ "sarc/docs" // Importa os docs gerados
-	"sarc/infrastructure/repositories"
+	repoimpl "sarc/infrastructure/repositories/SQLimpl"
 	"sarc/pkg/db"
 
 	"github.com/joho/godotenv"
@@ -20,16 +20,16 @@ func main() {
 	db.Connect()
 
 	// Initialize repositories
-	buildingRepo := repositories.NewBuildingRepository(db.DB)
-	roomRepo := repositories.NewRoomRepository(db.DB)
-	classRepo := repositories.NewClassRepository(db.DB)
-	curriculumRepo := repositories.NewCurriculumRepository(db.DB)
-	disciplineRepo := repositories.NewDisciplineRepository(db.DB)
-	lectureRepo := repositories.NewLectureRepository(db.DB)
-	profileRepo := repositories.NewProfileRepository(db.DB)
-	resourceRepo := repositories.NewResourceRepository(db.DB)
-	userRepo := repositories.NewUserRepository(db.DB)
-	reservationsRepo := repositories.NewReservationRepository(db.DB)
+	profileRepo := repoimpl.NewProfileRepository(db.DB)
+	userRepo := repoimpl.NewUserRepository(db.DB)
+	buildingRepo := repoimpl.NewBuildingRepository(db.DB)
+	roomRepo := repoimpl.NewRoomRepository(db.DB)
+	disciplineRepo := repoimpl.NewDisciplineRepository(db.DB)
+	curriculumRepo := repoimpl.NewCurriculumRepository(db.DB)
+	classRepo := repoimpl.NewClassRepository(db.DB)
+	lectureRepo := repoimpl.NewLectureRepository(db.DB)
+	resourceRepo := repoimpl.NewResourceRepository(db.DB)
+	reservationsRepo := repoimpl.NewReservationRepository(db.DB)
 
 	// Initialize services with repositories
 	buildingService := services.NewBuildingService(buildingRepo)

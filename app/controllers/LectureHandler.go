@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"sarc/core/domain"
-	"sarc/core/services"
+	serviceinterfaces "sarc/core/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type LectureHandler struct {
-	Service services.LectureService
+	Service serviceinterfaces.LectureService
 }
 
-func NewLectureHandler(service services.LectureService) *LectureHandler {
+func NewLectureHandler(service serviceinterfaces.LectureService) *LectureHandler {
 	return &LectureHandler{Service: service}
 }
 

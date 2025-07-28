@@ -3,22 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type ProfileService interface {
-	CreateProfile(profile *domain.Profile) (*domain.Profile, error)
-	GetProfiles() ([]domain.Profile, error)
-	GetProfileByID(id uint) (*domain.Profile, error)
-	UpdateProfile(id uint, profile *domain.Profile) (*domain.Profile, error)
-	DeleteProfile(id uint) error
-}
 
 type profileService struct {
 	repo repositories.ProfileRepository
 }
 
-func NewProfileService(repo repositories.ProfileRepository) ProfileService {
+func NewProfileService(repo repositories.ProfileRepository) interfaces.ProfileService {
 	return &profileService{repo: repo}
 }
 

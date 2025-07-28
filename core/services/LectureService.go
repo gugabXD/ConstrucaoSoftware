@@ -3,22 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type LectureService interface {
-	CreateLecture(lecture *domain.Lecture) (*domain.Lecture, error)
-	GetLectures() ([]domain.Lecture, error)
-	GetLectureByID(id uint) (*domain.Lecture, error)
-	UpdateLecture(id uint, lecture *domain.Lecture) (*domain.Lecture, error)
-	DeleteLecture(id uint) error
-}
 
 type lectureService struct {
 	repo repositories.LectureRepository
 }
 
-func NewLectureService(repo repositories.LectureRepository) LectureService {
+func NewLectureService(repo repositories.LectureRepository) interfaces.LectureService {
 	return &lectureService{repo: repo}
 }
 

@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"sarc/core/domain"
-	"sarc/core/services"
+	serviceinterfaces "sarc/core/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type DisciplineHandler struct {
-	Service services.DisciplineService
+	Service serviceinterfaces.DisciplineService
 }
 
-func NewDisciplineHandler(service services.DisciplineService) *DisciplineHandler {
+func NewDisciplineHandler(service serviceinterfaces.DisciplineService) *DisciplineHandler {
 	return &DisciplineHandler{Service: service}
 }
 

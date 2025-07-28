@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"sarc/core/domain"
-	"sarc/core/services"
+	serviceinterfaces "sarc/core/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type CurriculumHandler struct {
-	Service services.CurriculumService
+	Service serviceinterfaces.CurriculumService
 }
 
-func NewCurriculumHandler(service services.CurriculumService) *CurriculumHandler {
+func NewCurriculumHandler(service serviceinterfaces.CurriculumService) *CurriculumHandler {
 	return &CurriculumHandler{Service: service}
 }
 

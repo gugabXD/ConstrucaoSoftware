@@ -1,15 +1,16 @@
-package repositories
+package repoImpl
 
 import (
 	"database/sql"
 	"sarc/core/domain"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
 
 type profileRepositoryImpl struct {
 	db *sql.DB
 }
 
-func NewProfileRepository(db *sql.DB) ProfileRepository {
+func NewProfileRepository(db *sql.DB) repositories.ProfileRepository {
 	return &profileRepositoryImpl{db}
 }
 
