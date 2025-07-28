@@ -3,22 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type ResourceService interface {
-	CreateResource(resource *domain.Resource) (*domain.Resource, error)
-	GetResources() ([]domain.Resource, error)
-	GetResourceByID(id uint) (*domain.Resource, error)
-	UpdateResource(id uint, resource *domain.Resource) (*domain.Resource, error)
-	DeleteResource(id uint) error
-}
 
 type resourceService struct {
 	repo repositories.ResourceRepository
 }
 
-func NewResourceService(repo repositories.ResourceRepository) ResourceService {
+func NewResourceService(repo repositories.ResourceRepository) interfaces.ResourceService {
 	return &resourceService{repo: repo}
 }
 

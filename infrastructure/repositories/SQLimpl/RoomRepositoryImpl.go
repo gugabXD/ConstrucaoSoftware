@@ -1,15 +1,16 @@
-package repositories
+package repoImpl
 
 import (
 	"database/sql"
 	"sarc/core/domain"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
 
 type roomRepositoryImpl struct {
 	db *sql.DB
 }
 
-func NewRoomRepository(db *sql.DB) RoomRepository {
+func NewRoomRepository(db *sql.DB) repositories.RoomRepository {
 	return &roomRepositoryImpl{db}
 }
 

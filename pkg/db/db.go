@@ -8,7 +8,7 @@ import (
 
 	"sarc/core/domain"
 	"sarc/core/services"
-	"sarc/infrastructure/repositories"
+	repoimpl "sarc/infrastructure/repositories/SQLimpl"
 
 	_ "github.com/lib/pq"
 )
@@ -150,17 +150,17 @@ func Connect() {
 	}
 
 	// Instantiate repositories
-	profileRepo := repositories.NewProfileRepository(DB)
-	userRepo := repositories.NewUserRepository(DB)
-	buildingRepo := repositories.NewBuildingRepository(DB)
-	roomRepo := repositories.NewRoomRepository(DB)
-	disciplineRepo := repositories.NewDisciplineRepository(DB)
-	curriculumRepo := repositories.NewCurriculumRepository(DB)
-	classRepo := repositories.NewClassRepository(DB)
-	lectureRepo := repositories.NewLectureRepository(DB)
-	resourceTypeRepo := repositories.NewResourceTypeRepository(DB)
-	resourceRepo := repositories.NewResourceRepository(DB)
-	reservationRepo := repositories.NewReservationRepository(DB)
+	profileRepo := repoimpl.NewProfileRepository(DB)
+	userRepo := repoimpl.NewUserRepository(DB)
+	buildingRepo := repoimpl.NewBuildingRepository(DB)
+	roomRepo := repoimpl.NewRoomRepository(DB)
+	disciplineRepo := repoimpl.NewDisciplineRepository(DB)
+	curriculumRepo := repoimpl.NewCurriculumRepository(DB)
+	classRepo := repoimpl.NewClassRepository(DB)
+	lectureRepo := repoimpl.NewLectureRepository(DB)
+	resourceTypeRepo := repoimpl.NewResourceTypeRepository(DB)
+	resourceRepo := repoimpl.NewResourceRepository(DB)
+	reservationRepo := repoimpl.NewReservationRepository(DB)
 
 	// Instantiate services
 	profileService := services.NewProfileService(profileRepo)

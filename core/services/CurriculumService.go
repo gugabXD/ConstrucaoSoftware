@@ -3,23 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type CurriculumService interface {
-	CreateCurriculum(curriculum *domain.Curriculum) (*domain.Curriculum, error)
-	GetCurriculums() ([]domain.Curriculum, error)
-	GetCurriculumByID(id uint) (*domain.Curriculum, error)
-	UpdateCurriculum(id uint, curriculum *domain.Curriculum) (*domain.Curriculum, error)
-	DeleteCurriculum(id uint) error
-	AddDisciplineToCurriculum(curriculumID uint, disciplineID uint) error
-}
 
 type curriculumService struct {
 	repo repositories.CurriculumRepository
 }
 
-func NewCurriculumService(repo repositories.CurriculumRepository) CurriculumService {
+func NewCurriculumService(repo repositories.CurriculumRepository) interfaces.CurriculumService {
 	return &curriculumService{repo: repo}
 }
 

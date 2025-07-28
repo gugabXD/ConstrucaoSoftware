@@ -1,15 +1,16 @@
-package repositories
+package repoImpl
 
 import (
 	"database/sql"
 	"sarc/core/domain"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
 
 type resourceRepositoryImpl struct {
 	db *sql.DB
 }
 
-func NewResourceRepository(db *sql.DB) ResourceRepository {
+func NewResourceRepository(db *sql.DB) repositories.ResourceRepository {
 	return &resourceRepositoryImpl{db}
 }
 

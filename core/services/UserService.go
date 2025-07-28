@@ -3,22 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type UserService interface {
-	CreateUser(user *domain.User) (*domain.User, error)
-	GetUsers() ([]domain.User, error)
-	GetUserByID(id uint) (*domain.User, error)
-	UpdateUser(id uint, user *domain.User) (*domain.User, error)
-	DeleteUser(id uint) error
-}
 
 type userService struct {
 	repo repositories.UserRepository
 }
 
-func NewUserService(repo repositories.UserRepository) UserService {
+func NewUserService(repo repositories.UserRepository) interfaces.UserService {
 	return &userService{repo: repo}
 }
 

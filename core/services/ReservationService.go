@@ -3,23 +3,15 @@ package services
 import (
 	"errors"
 	"sarc/core/domain"
-	"sarc/infrastructure/repositories"
+	interfaces "sarc/core/services/interfaces"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
-
-type ReservationsService interface {
-	CreateReservation(reservation *domain.Reservation) (*domain.Reservation, error)
-	GetReservations() ([]domain.Reservation, error)
-	GetReservationByID(id uint) (*domain.Reservation, error)
-	UpdateReservation(id uint, reservation *domain.Reservation) (*domain.Reservation, error)
-	DeleteReservation(id uint) error
-	AddResourceToReservation(reservationID uint, resourceID uint) error
-}
 
 type reservationsService struct {
 	repo repositories.ReservationRepository
 }
 
-func NewReservationsService(repo repositories.ReservationRepository) ReservationsService {
+func NewReservationsService(repo repositories.ReservationRepository) interfaces.ReservationsService {
 	return &reservationsService{repo: repo}
 }
 

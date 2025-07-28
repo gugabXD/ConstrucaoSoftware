@@ -1,15 +1,16 @@
-package repositories
+package repoImpl
 
 import (
 	"database/sql"
 	"sarc/core/domain"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
 
 type disciplineRepositoryImpl struct {
 	db *sql.DB
 }
 
-func NewDisciplineRepository(db *sql.DB) DisciplineRepository {
+func NewDisciplineRepository(db *sql.DB) repositories.DisciplineRepository {
 	return &disciplineRepositoryImpl{db}
 }
 

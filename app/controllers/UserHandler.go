@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"sarc/core/domain"
-	"sarc/core/services"
+	serviceinterfaces "sarc/core/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
-	Service services.UserService
+	Service serviceinterfaces.UserService
 }
 
-func NewUserHandler(service services.UserService) *UserHandler {
+func NewUserHandler(service serviceinterfaces.UserService) *UserHandler {
 	return &UserHandler{Service: service}
 }
 

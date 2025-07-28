@@ -1,15 +1,16 @@
-package repositories
+package repoImpl
 
 import (
 	"database/sql"
 	"sarc/core/domain"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
 
 type reservationRepositoryImpl struct {
 	db *sql.DB
 }
 
-func NewReservationRepository(db *sql.DB) ReservationRepository {
+func NewReservationRepository(db *sql.DB) repositories.ReservationRepository {
 	return &reservationRepositoryImpl{db}
 }
 

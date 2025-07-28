@@ -1,15 +1,16 @@
-package repositories
+package repoImpl
 
 import (
 	"database/sql"
 	"sarc/core/domain"
+	repositories "sarc/infrastructure/repositories/interfaces"
 )
 
 type curriculumRepositoryImpl struct {
 	db *sql.DB
 }
 
-func NewCurriculumRepository(db *sql.DB) CurriculumRepository {
+func NewCurriculumRepository(db *sql.DB) repositories.CurriculumRepository {
 	return &curriculumRepositoryImpl{db}
 }
 

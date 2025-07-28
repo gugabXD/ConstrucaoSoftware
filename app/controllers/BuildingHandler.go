@@ -5,16 +5,16 @@ import (
 	"strconv"
 
 	"sarc/core/domain"
-	"sarc/core/services"
+	serviceinterfaces "sarc/core/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type BuildingHandler struct {
-	Service services.BuildingService
+	Service serviceinterfaces.BuildingService
 }
 
-func NewBuildingHandler(service services.BuildingService) *BuildingHandler {
+func NewBuildingHandler(service serviceinterfaces.BuildingService) *BuildingHandler {
 	return &BuildingHandler{Service: service}
 }
 
